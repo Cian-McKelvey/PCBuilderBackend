@@ -66,3 +66,4 @@ def ram_cost_calculator(budget):
         return 3
     if budget > 2000:
         return 4
+

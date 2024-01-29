@@ -8,6 +8,7 @@ from user import User
 logger = create_logger('Users.log')
 
 
+# Hash Passwords here before entering the account
 def add_new_user(user_session: Session, first_name: str, last_name: str,
                  username: str, email: str, password: str):
     new_user = User(
@@ -79,21 +80,30 @@ def update_user_password(user_session: Session, username: str, old_password: str
         user_session.rollback()  # Rollback changes in case of an error
         return False
 
-# This needs fixed, the return type isn't as intended, but the thing might still work fine, just need testing
-# Can also use the user_table instead while fetching then build an object out of the result
 
-# def fetch_user_by_username(user_session: Session, username: str) -> User:
-#     try:
-#         fetched_user = user_session.query(User).filter(User.username == username).first()
-#
-#         if fetched_user is not None:
-#             return fetched_user
-#
-#     except NoResultFound as e:
-#         logger.error(f"No result found during user lookup: {e}")
-#
-#     except SQLAlchemyError as e:
-#         logger.error(f"Error during user lookup: {e}")
-#
-#     # If nothing is found, you may want to return None or raise an exception depending on your application logic.
-#     return None
+def valid_user_check(user_session: Session, username: str, password: str) -> int:
+    try:
+        # Attempts to fetch as user with the provided username
+        fetched_user = user_session.query(User).filter(User.username == username).first()
+
+        if fetched_user is not None:
+            # If a user is found, compare its password with the provided password, true if it's a match, false otherwise
+            if fetched_user.password == password:
+                logger.info(f"Account found with matching credentials")
+                return fetched_user.id
+            else:
+                logger.info(f"Account password is incorrect")
+                return -0
+        else:
+            logger.info(f"No account found with username : {username}")
+            return -0
+
+    except NoResultFound as e:
+        logger.error(f"No result found during user lookup: {e}")
+        return -0
+
+    except SQLAlchemyError as e:
+        logger.error(f"Error during user lookup: {e}")
+        return -0
+
+
