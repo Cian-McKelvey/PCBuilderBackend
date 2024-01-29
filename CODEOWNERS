@@ -1,0 +1,5 @@
+# CODEOWNERS file for the GitHub user Cian-McKelvey
+# This file defines code ownership rules for the repository.
+
+# Specify global code owners (applicable to the entire repository)
+*       @Cian-McKelvey

@@ -1,0 +1,13 @@
+pymongo==4.5.0
+requests==2.31.0
+Flask==3.0.0
+Flask-Cors==4.0.0
+bcrypt==4.0.1
+PyJWT==2.8.0
+SQLAlchemy==2.0.25
+pylint==3.0.3
+loguru==0.6.0
+pandas==2.1.4
+openpyxl==3.1.2
+beautifulsoup4==4.12.2
+pyodbc==5.0.1
