@@ -14,8 +14,6 @@ def write_frame_to_excel(filepath, frame):
     frame.to_excel(filepath, sheet_name='Sheet1', index=False)
 
 
-def read_excel_data(filepath):
+def read_excel_data(filepath: str) -> pd.DataFrame:
     dataframe = pd.read_excel(filepath)
     return dataframe
-
-# Used: frame = read_excel_data("ExportedEstimate.xlsx")
