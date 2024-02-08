@@ -8,7 +8,7 @@ from pymongo.errors import PyMongoError
 from sqlalchemy.orm import Session
 
 from build_database_methods import write_new_build, delete_build, edit_build
-from user_database_methods import valid_user_check
+from user_database_methods import add_new_user, delete_existing_user, unique_username_check, unique_email_check
 
 from orm_setup import engine
 
@@ -30,8 +30,7 @@ client = MongoClient(MONGO_CONNECTION_URL)
 database = client[STAGING_DATABASE]
 builds_collection = database[BUILDS_COLLECTION]
 build_index_collection = database[BUILDS_INDEX_COLLECTION]
-
-session = Session(engine)
+users_collection = database[USER_COLLECTION]
 
 
 @app.route("/")
@@ -50,24 +49,6 @@ LOGIN AND LOGOUT ROUTES
 def login():
     auth = request.authorization
 
-    if auth:
-        valid_user_by_id = valid_user_check(user_session=session, username=auth.username, password=auth.password)
-        # Checks for a valid user, if so continue
-        if valid_user_by_id > 0:
-
-            token = jwt.encode({
-                'user_id': valid_user_by_id,
-                'username': auth.username,
-                'admin': False,  # Check the full stack lecture materials for this
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-            }, app.config['SECRET_KEY'])
-            return make_response(jsonify({'token': token, "user_id": valid_user_by_id}), 200)
-
-        else:
-            return make_response(jsonify({'message': 'Bad username'}), 401)
-
-    return make_response(jsonify({'message': 'Authentication credentials were not provided'}), 401)
-
 
 @app.route('/api/v1.0/logout', methods=['GET'])
 def logout():
@@ -81,12 +62,34 @@ def logout():
 
 @app.route('/api/v1.0/users/new', methods=['POST'])
 def new_user():
-    pass
+    # Checks if the email is already associated with an account
+    is_unique_email = unique_email_check(users_collection, request.form["email"])
+    if not is_unique_email:
+        return make_response(jsonify({"message": "SIGNUP FAILED, that email is already in use"}), 404)
+
+    is_unique_username = unique_username_check(users_collection, request.form["username"])
+    if not is_unique_username:
+        return make_response(jsonify({"message": "SIGNUP FAILED, that username is already in use"}), 404)
+
+    try:
+        add_new_user(user_collection=users_collection, first_name=request.form["first_name"],
+                     last_name=request.form["last_name"], username=request.form["username"],
+                     email=request.form["email"], provided_password=request.form["password"])
+        return make_response(jsonify({"message": "New user and password added successfully"}), 201)
+
+    except PyMongoError as e:
+        print("Could not add new user")
+        return make_response(jsonify({"message": "New user could not be added"}), 400)
 
 
 @app.route('/api/v1.0/users/<string:id>/delete', methods=['DELETE'])
 def delete_user(id):
-    pass
+    delete_result = delete_existing_user(users_collection, id)
+
+    if delete_result:
+        return make_response(jsonify({}), 204)
+    else:
+        return make_response(jsonify({"message": "User account not found or password incorrect."}), 404)
 
 
 @app.route('/api/v1.0/users/<string:id>/edit', methods=['PUT'])
