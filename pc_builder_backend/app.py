@@ -89,7 +89,7 @@ def delete_user(id):
     if delete_result:
         return make_response(jsonify({}), 204)
     else:
-        return make_response(jsonify({"message": "User account not found or password incorrect."}), 404)
+        return make_response(jsonify({"message": "User account not found"}), 404)
 
 
 @app.route('/api/v1.0/users/<string:id>/edit', methods=['PUT'])
