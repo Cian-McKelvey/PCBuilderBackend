@@ -5,12 +5,10 @@ from flask import Flask, request, make_response, jsonify, render_template
 from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
-from sqlalchemy.orm import Session
 
 from build_database_methods import write_new_build, delete_build, edit_build
-from user_database_methods import add_new_user, delete_existing_user, unique_username_check, unique_email_check
-
-from orm_setup import engine
+from user_database_methods import (add_new_user, delete_existing_user,
+                                   unique_username_check, update_user_password)
 
 from constants import *
 
@@ -62,11 +60,7 @@ def logout():
 
 @app.route('/api/v1.0/users/new', methods=['POST'])
 def new_user():
-    # Checks if the email is already associated with an account
-    is_unique_email = unique_email_check(users_collection, request.form["email"])
-    if not is_unique_email:
-        return make_response(jsonify({"message": "SIGNUP FAILED, that email is already in use"}), 404)
-
+    # Checks that the username isn't already stored with an account
     is_unique_username = unique_username_check(users_collection, request.form["username"])
     if not is_unique_username:
         return make_response(jsonify({"message": "SIGNUP FAILED, that username is already in use"}), 404)
@@ -74,7 +68,7 @@ def new_user():
     try:
         add_new_user(user_collection=users_collection, first_name=request.form["first_name"],
                      last_name=request.form["last_name"], username=request.form["username"],
-                     email=request.form["email"], provided_password=request.form["password"])
+                     provided_password=request.form["password"])
         return make_response(jsonify({"message": "New user and password added successfully"}), 201)
 
     except PyMongoError as e:
@@ -92,9 +86,32 @@ def delete_user(id):
         return make_response(jsonify({"message": "User account not found"}), 404)
 
 
-@app.route('/api/v1.0/users/<string:id>/edit', methods=['PUT'])
-def edit_user(id):
-    pass
+@app.route('/api/v1.0/users/edit/password', methods=['PUT'])
+def edit_user_password():
+
+    non_valid_username = unique_username_check(user_collection=users_collection, username=request.form["username"])
+    if non_valid_username:
+        return make_response(jsonify({"message": "Invalid username"}), 400)
+
+    try:
+        password_update_result = update_user_password(user_collection=users_collection,
+                                                      username=request.form["username"],
+                                                      old_password=request.form["old_password"],
+                                                      new_password=request.form["new_password"])
+
+        if password_update_result:
+            return make_response(jsonify({"message": "Password changed successfully"}), 200)
+        else:
+            return make_response(jsonify({"message": "Password was unable to be updated, "
+                                                     "make sure the details provided are correct"}), 400)
+
+    except PyMongoError as e:
+        return make_response(jsonify({"message": f"Error with PyMongo - {e}"}), 500)
+
+
+@app.route('/api/v1.0/users/<string:id>/edit/username', methods=['PUT'])
+def edit_user_username(id):
+    ...
 
 
 """

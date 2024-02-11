@@ -10,12 +10,11 @@ from constants import RELATIONAL_TABLE_NAME
 
 
 class User:
-    def __init__(self, first_name, last_name, username, email, password):
+    def __init__(self, first_name, last_name, username, password):
         self.user_id = str(uuid.uuid1())  # Generates a user id on initialisation
         self.firstname = first_name
         self.surname = last_name
         self.username = username
-        self.email = email
         self.password = password  # Password will be hashed before creating an instance
         self.admin = False
         self.registration_date = datetime.datetime.now()  # Registers when the user created an account
@@ -26,14 +25,13 @@ class User:
             "first_name": self.firstname,
             "last_name": self.surname,
             "username": self.username,
-            "email": self.email,
             "password": self.password,
             "admin": self.admin,
             "registration_date": self.registration_date
         }
 
     def __repr__(self):
-        return f"User: Name={self.firstname} {self.surname}  username={self.username}  email={self.email}"
+        return f"User: Name={self.firstname} {self.surname}  username={self.username}"
 
 
 """
