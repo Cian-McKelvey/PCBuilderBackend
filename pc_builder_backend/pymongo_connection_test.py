@@ -48,12 +48,12 @@ except Exception as e:
 
 pprint.pprint(builds_collection.find_one({"build_id": my_pc_build.build_id}))
 
-# # Delete Build
-# try:
-#     delete_build(builds_collection=builds_collection,
-#                  builds_index_collection=build_index_collection,
-#                  build_id=my_pc_build.build_id,
-#                  user_id="5")
-#     print(f"Build {my_pc_build.build_id} successfully deleted")
-# except PyMongoError as e:
-#     print(e)
+# Delete Build
+try:
+    delete_build(builds_collection=builds_collection,
+                 builds_index_collection=build_index_collection,
+                 build_id=my_pc_build.build_id,
+                 user_id="5")
+    print(f"Build {my_pc_build.build_id} successfully deleted")
+except PyMongoError as e:
+    print(e)
