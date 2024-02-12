@@ -19,10 +19,10 @@ print(cpu_dataframe)
 print("\n\n\n\n")
 
 # Target price and adjustment values, gets the aimed price of the part in this case its hardcoded.
-# Adds 15% to use as the higher range, subtracts 15% to use as the lower range
+# Adds 20% to use as the higher range, subtracts 20% to use as the lower range
 target_price = 70
-target_plus = target_price + (target_price * 15 / 100)
-target_minus = target_price - (target_price * 15 / 100)
+target_plus = target_price + (target_price * 20 / 100)
+target_minus = target_price - (target_price * 20 / 100)
 
 # Filter the DataFrame to only include SSD parts with prices between target_minus and target_plus
 ssd_dataframe = complete_parts_df.query('(Type == "SSD") & (@target_minus <= Price <= @target_plus)')

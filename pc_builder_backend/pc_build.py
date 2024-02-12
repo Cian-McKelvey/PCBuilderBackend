@@ -13,7 +13,7 @@ class PCBuild:
         self.hdd = None
         self.motherboard = None
         self.power_supply = None
-        self.build_id = str(uuid.uuid1())
+        self.build_id = str(uuid.uuid4())
 
         # Initialise prices as 0
         self.overall_price = 0

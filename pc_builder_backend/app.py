@@ -1,5 +1,6 @@
 import datetime
 
+import bcrypt
 import jwt
 from flask import Flask, request, make_response, jsonify, render_template
 from flask_cors import CORS
@@ -9,11 +10,11 @@ from pymongo.errors import PyMongoError
 from build_database_methods import write_new_build, delete_build, edit_build
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
-
+from helper_methods import jwt_methods
 from constants import *
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "SECRET_KEY"  # Used in JWT wrapper function, add this to constants
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # This config might help at a later point, if the code does not work for any reason come back and try use it
 cors_config = {
@@ -29,6 +30,7 @@ database = client[STAGING_DATABASE]
 builds_collection = database[BUILDS_COLLECTION]
 build_index_collection = database[BUILDS_INDEX_COLLECTION]
 users_collection = database[USER_COLLECTION]
+blacklisted_tokens_collection = database[BLACKLIST_COLLECTION]
 
 
 @app.route("/")
@@ -46,11 +48,35 @@ LOGIN AND LOGOUT ROUTES
 @app.route('/api/v1.0/login', methods=['GET'])
 def login():
     auth = request.authorization
+    if auth:
+        user = users_collection.find_one({'email': auth.username})
+        if user is not None:
+
+            # Checks for a valid password, and if so returns token
+            if bcrypt.checkpw(auth.password.encode('utf-8'), user['password']):
+                # Token is created that contains the username and expiry time
+                token = jwt.encode({
+                    'user': auth.username,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                }, app.config['SECRET_KEY'])
+                return make_response(jsonify({'token': token, "user_id": user['user_id']}), 200)
+
+            # Otherwise returns an error
+            else:
+                return make_response(jsonify({'message': 'Bad password'}), 401)
+
+        else:
+            return make_response(jsonify({'message': 'Bad username'}), 401)
+
+    return make_response(jsonify({'message': 'Authentication credentials were not provided'}), 401)
 
 
 @app.route('/api/v1.0/logout', methods=['GET'])
 def logout():
-    pass
+    # Gets the token, and writes it to a database of blacklisted tokens
+    token = request.headers['x-access-token']
+    blacklisted_tokens_collection.insert_one({"token": token})
+    return make_response(jsonify({"message": "logout successful"}), 200)
 
 
 """

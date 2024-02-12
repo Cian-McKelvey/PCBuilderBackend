@@ -11,7 +11,7 @@ from constants import RELATIONAL_TABLE_NAME
 
 class User:
     def __init__(self, first_name, last_name, username, password):
-        self.user_id = str(uuid.uuid1())  # Generates a user id on initialisation
+        self.user_id = str(uuid.uuid4())  # Generates a user id on initialisation
         self.firstname = first_name
         self.surname = last_name
         self.username = username
