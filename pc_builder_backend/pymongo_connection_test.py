@@ -21,6 +21,7 @@ my_pc_build.set_ssd(ssd="1TB NVMe", price=100)
 my_pc_build.set_hdd(hdd="2TB SATA", price=80)
 my_pc_build.set_motherboard(motherboard="ASUS ROG Strix Z590", price=250)
 my_pc_build.set_power_supply(power_supply="850W Gold-rated", price=120)
+my_pc_build.set_case(case="example", price=100)
 
 my_pc_build.display_info()
 print("\n---------------------------\n")

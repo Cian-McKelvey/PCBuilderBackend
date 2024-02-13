@@ -49,7 +49,7 @@ LOGIN AND LOGOUT ROUTES
 def login():
     auth = request.authorization
     if auth:
-        user = users_collection.find_one({'email': auth.username})
+        user = users_collection.find_one({'username': auth.username})
         if user is not None:
 
             # Checks for a valid password, and if so returns token
@@ -147,6 +147,7 @@ PC BUILD ROUTES
 
 @app.route('/api/v1.0/builds/new', methods=['POST'])
 def new_pc_build():
+    # This will require getting the user_id, pass it as the headers in the API request
     pass
 
 
@@ -178,8 +179,8 @@ def edit_pc_build(build_id):
     try:
         success = edit_build(builds_collection=builds_collection,
                              build_id=build_id,
-                             part_name=request.json[''],
-                             new_part=request.json[''])
+                             part_name=request.json[''],  # This will be the part name
+                             new_part=request.json[''])  # This will be a dict of the new part
         if success:
             return make_response(jsonify({"message": f"Successfully updated build - {build_id}"}), 200)
         else:

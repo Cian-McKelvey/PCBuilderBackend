@@ -13,6 +13,7 @@ class PCBuild:
         self.hdd = None
         self.motherboard = None
         self.power_supply = None
+        self.case = None
         self.build_id = str(uuid.uuid4())
 
         # Initialise prices as 0
@@ -24,6 +25,7 @@ class PCBuild:
         self.hdd_price = 0
         self.motherboard_price = 0
         self.power_supply_price = 0
+        self.case_price = 0
 
     def set_cpu(self, cpu, price) -> None:
         self.cpu = cpu
@@ -67,6 +69,12 @@ class PCBuild:
         # Recalculate overall price
         self.calculate_overall_price()
 
+    def set_case(self, case, price) -> None:
+        self.case = case
+        self.case_price = price
+        # Recalculate overall price
+        self.calculate_overall_price()
+
     def calculate_overall_price(self) -> None:
         self.overall_price = sum([
             self.cpu_price,
@@ -75,7 +83,8 @@ class PCBuild:
             self.ssd_price,
             self.hdd_price,
             self.motherboard_price,
-            self.power_supply_price
+            self.power_supply_price,
+            self.case_price
         ])
 
     def __repr__(self):
@@ -87,6 +96,7 @@ class PCBuild:
                 f"HDD: {self.hdd} - Price: £{self.hdd_price}\n"
                 f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}\n"
                 f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}\n"
+                f"Case: {self.case} - Price: £{self.case_price}\n"
                 f"-----------------------------------------------------------------\n"
                 f"Overall Price: £{self.overall_price}")
 
@@ -99,6 +109,7 @@ class PCBuild:
         print(f"HDD: {self.hdd} - Price: £{self.hdd_price}")
         print(f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}")
         print(f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}")
+        print(f"Case: {self.case} - Price: £{self.case_price}\n")
         print(f"Overall Price: £{self.overall_price}")
 
     """ 
@@ -116,6 +127,7 @@ class PCBuild:
             "HDD": {"value": pc_build.hdd, "price": pc_build.hdd_price},
             "Motherboard": {"value": pc_build.motherboard, "price": pc_build.motherboard_price},
             "PowerSupply": {"value": pc_build.power_supply, "price": pc_build.power_supply_price},
+            "Case": {"value": pc_build.case, "price": pc_build.case_price},
             "OverallPrice": pc_build.overall_price,
             "build_id": pc_build.build_id,
             "user_id": user_id,
