@@ -88,17 +88,29 @@ class PCBuild:
         ])
 
     def __repr__(self):
-        return (f"PC Build Information : {self.build_id}\n"
-                f"CPU: {self.cpu} - Price: £{self.cpu_price}\n"
-                f"GPU: {self.gpu} - Price: £{self.gpu_price}\n"
-                f"RAM: {self.ram} - Price: £{self.ram_price}\n"
-                f"SSD: {self.ssd} - Price: £{self.ssd_price}\n"
-                f"HDD: {self.hdd} - Price: £{self.hdd_price}\n"
-                f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}\n"
-                f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}\n"
-                f"Case: {self.case} - Price: £{self.case_price}\n"
-                f"-----------------------------------------------------------------\n"
-                f"Overall Price: £{self.overall_price}")
+        representation = (
+            f"PC Build Information : {self.build_id}\n"
+            f"CPU: {self.cpu} - Price: £{self.cpu_price}\n"
+            f"GPU: {self.gpu} - Price: £{self.gpu_price}\n"
+            f"RAM: {self.ram} - Price: £{self.ram_price}\n"
+        )
+
+        # Since SSD and HDD are not required and may be one or another the print value will only show if not None
+        if self.hdd is not None:
+            representation += f"HDD: {self.hdd} - Price: £{self.hdd_price}\n"
+
+        if self.ssd is not None:
+            representation += f"SSD: {self.ssd} - Price: £{self.ssd_price}\n"
+
+        representation += (
+            f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}\n"
+            f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}\n"
+            f"Case: {self.case} - Price: £{self.case_price}\n"
+            "-----------------------------------------------------------------\n"
+            f"Overall Price: £{self.overall_price}"
+        )
+
+        return representation
 
     def display_info(self) -> None:
         print(f"PC Build Information : {self.build_id}")
