@@ -17,7 +17,7 @@ class PCBuild:
         self.build_id = str(uuid.uuid4())
 
         # Initialise prices as 0
-        self.overall_price = 0
+        self.overall_price: float = 0
         self.cpu_price = 0
         self.gpu_price = 0
         self.ram_price = 0
@@ -107,7 +107,7 @@ class PCBuild:
             f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}\n"
             f"Case: {self.case} - Price: £{self.case_price}\n"
             "-----------------------------------------------------------------\n"
-            f"Overall Price: £{self.overall_price}"
+            f"Overall Price: £{round(self.overall_price, 2)}"
         )
 
         return representation
