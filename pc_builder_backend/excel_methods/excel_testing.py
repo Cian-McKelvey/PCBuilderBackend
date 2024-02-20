@@ -96,9 +96,8 @@ sample_ps_price = sample_ps.loc[sample_ps.index[0], 'Price']
 # Case DataFrame where parts are filtered by price
 case_dataframe = complete_parts_df.query('Type == "Case" and 50 <= Price <= 70')
 sample_case = case_dataframe.sample(n=1)
-if not sample_case.empty:
-    sample_case_name = sample_case.iloc[0]['Name']
-    sample_case_price = sample_case.iloc[0]['Price']
+sample_case_name = sample_case.iloc[0]['Name']
+sample_case_price = sample_case.iloc[0]['Price']
 
 new_build = PCBuild()
 new_build.set_cpu(sample_cpu_name, sample_cpu_price)
