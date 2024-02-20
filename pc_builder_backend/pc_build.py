@@ -107,7 +107,7 @@ class PCBuild:
             f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}\n"
             f"Case: {self.case} - Price: £{self.case_price}\n"
             "-----------------------------------------------------------------\n"
-            f"Overall Price: £{round(self.overall_price, 2)}"
+            f"Overall Price: £{self.overall_price:.2f}\n"  # Rounds to 2 decimal places
         )
 
         return representation
@@ -122,7 +122,7 @@ class PCBuild:
         print(f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}")
         print(f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}")
         print(f"Case: {self.case} - Price: £{self.case_price}\n")
-        print(f"Overall Price: £{self.overall_price}")
+        f"Overall Price: £{self.overall_price:.2f}\n"  # Rounds to 2 decimal places
 
     """ 
     Allows the creation of a JSON object of the complete build
