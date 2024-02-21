@@ -6,23 +6,26 @@ from pc_builder_backend.pc_build import PCBuild
 
 
 def read_excel_data(filepath: str) -> pd.DataFrame:
+    """
+    Reads data from the Excel doc into a pandas dataframe
+
+    :param filepath: The filepath of the Excel doc
+    :return: Dataframe containing the contents of the Excel doc
+    """
     dataframe = pd.read_excel(filepath)
     return dataframe
 
 
 def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_price: Union[int, float]) -> pd.DataFrame:
     """
-    Fetch valid parts based on the specified part name and target price range.
+    Fetches valid parts from a DataFrame based on the specified part name and target price range.
 
-    Args:
-    - part_name (str): The type of part to search for.
-    - parts_dataframe (pd.DataFrame): DataFrame containing parts data.
-    - target_price (Union[int, float]): The target price for the part.
-
-    Returns:
-    - pd.DataFrame: DataFrame containing valid parts within the specified price range and part type.
+    :param part_name: Name of the part to be fetched.
+    :param parts_dataframe: DataFrame containing information about available parts.
+    :param target_price: Target price for the part.
+    :return: DataFrame containing valid parts within the target price range.
+    :raises ValueError: If the input parameters are not of the expected types.
     """
-
     # Validate input parameters
     if not isinstance(part_name, str):
         raise ValueError("part_name must be a string.")
@@ -41,7 +44,15 @@ def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_pric
     return trimmed_dataframe
 
 
-def allocate_budget(build_budget) -> dict:
+def allocate_budget(build_budget: Union[int, float]) -> dict:
+    """
+    Allocates budget for different PC components based on the given build budget.
+
+    :param build_budget: The budget allocated for the PC build.
+    :return: A dictionary containing the price ratios for different PC components.
+    :raises ValueError: If the budget is out of range.
+    """
+
     if build_budget <= 500:
         part_ratios = {
             "CPU": 0.20,
@@ -93,8 +104,14 @@ def allocate_budget(build_budget) -> dict:
         raise ValueError("Budget out of range")
 
 
-def generate_build_from_excel(build_price: int, complete_parts_df: pd.DataFrame) -> PCBuild:
+def generate_build_from_excel(build_price: Union[int, float], complete_parts_df: pd.DataFrame) -> PCBuild:
+    """
+    Generates a PC build based on a given budget and available parts information.
 
+    :param build_price: The budget allocated for the PC build.
+    :param complete_parts_df: DataFrame containing information about available parts.
+    :return: An instance of the PCBuild class representing the generated PC build.
+    """
     new_build = PCBuild()
 
     price_ratios = allocate_budget(build_budget=build_price)
