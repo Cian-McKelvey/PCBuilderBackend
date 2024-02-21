@@ -9,8 +9,7 @@ class PCBuild:
         self.cpu = None
         self.gpu = None
         self.ram = None
-        self.ssd = None
-        self.hdd = None
+        self.storage = None
         self.motherboard = None
         self.power_supply = None
         self.case = None
@@ -21,8 +20,7 @@ class PCBuild:
         self.cpu_price = 0
         self.gpu_price = 0
         self.ram_price = 0
-        self.ssd_price = 0
-        self.hdd_price = 0
+        self.storage_price = 0
         self.motherboard_price = 0
         self.power_supply_price = 0
         self.case_price = 0
@@ -45,15 +43,9 @@ class PCBuild:
         # Recalculate overall price
         self.calculate_overall_price()
 
-    def set_ssd(self, ssd, price) -> None:
-        self.ssd = ssd
-        self.ssd_price = price
-        # Recalculate overall price
-        self.calculate_overall_price()
-
-    def set_hdd(self, hdd, price) -> None:
-        self.hdd = hdd
-        self.hdd_price = price
+    def set_storage(self, storage, price) -> None:
+        self.storage = storage
+        self.storage_price = price
         # Recalculate overall price
         self.calculate_overall_price()
 
@@ -80,8 +72,7 @@ class PCBuild:
             self.cpu_price,
             self.gpu_price,
             self.ram_price,
-            self.ssd_price,
-            self.hdd_price,
+            self.storage_price,
             self.motherboard_price,
             self.power_supply_price,
             self.case_price
@@ -93,16 +84,7 @@ class PCBuild:
             f"CPU: {self.cpu} - Price: £{self.cpu_price}\n"
             f"GPU: {self.gpu} - Price: £{self.gpu_price}\n"
             f"RAM: {self.ram} - Price: £{self.ram_price}\n"
-        )
-
-        # Since SSD and HDD are not required and may be one or another the print value will only show if not None
-        if self.hdd is not None:
-            representation += f"HDD: {self.hdd} - Price: £{self.hdd_price}\n"
-
-        if self.ssd is not None:
-            representation += f"SSD: {self.ssd} - Price: £{self.ssd_price}\n"
-
-        representation += (
+            f"Storage: {self.storage} - Price: £{self.storage_price}\n"
             f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}\n"
             f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}\n"
             f"Case: {self.case} - Price: £{self.case_price}\n"
@@ -117,8 +99,7 @@ class PCBuild:
         print(f"CPU: {self.cpu} - Price: £{self.cpu_price}")
         print(f"GPU: {self.gpu} - Price: £{self.gpu_price}")
         print(f"RAM: {self.ram} - Price: £{self.ram_price}")
-        print(f"SSD: {self.ssd} - Price: £{self.ssd_price}")
-        print(f"HDD: {self.hdd} - Price: £{self.hdd_price}")
+        print(f"Storage: {self.storage} - Price: £{self.storage_price}")
         print(f"Motherboard: {self.motherboard} - Price: £{self.motherboard_price}")
         print(f"Power Supply: {self.power_supply} - Price: £{self.power_supply_price}")
         print(f"Case: {self.case} - Price: £{self.case_price}\n")
@@ -135,8 +116,7 @@ class PCBuild:
             "CPU": {"value": pc_build.cpu, "price": pc_build.cpu_price},
             "GPU": {"value": pc_build.gpu, "price": pc_build.gpu_price},
             "RAM": {"value": pc_build.ram, "price": pc_build.ram_price},
-            "SSD": {"value": pc_build.ssd, "price": pc_build.ssd_price},
-            "HDD": {"value": pc_build.hdd, "price": pc_build.hdd_price},
+            "Storage": {"value": pc_build.storage, "price": pc_build.storage_price},
             "Motherboard": {"value": pc_build.motherboard, "price": pc_build.motherboard_price},
             "PowerSupply": {"value": pc_build.power_supply, "price": pc_build.power_supply_price},
             "Case": {"value": pc_build.case, "price": pc_build.case_price},

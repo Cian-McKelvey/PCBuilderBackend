@@ -1,4 +1,4 @@
-from excel_helper_methods import read_excel_data, fetch_valid_parts
+from excel_helper_methods import read_excel_data, fetch_valid_parts, generate_build_from_excel
 import os
 import pandas as pd
 
@@ -75,12 +75,6 @@ sample_hdd = hdd_dataframe.sample(n=1)
 sample_hdd_name = sample_hdd.loc[sample_hdd.index[0], 'Name']
 sample_hdd_price = sample_hdd.loc[sample_hdd.index[0], 'Price']
 
-# SSD DataFrame
-ssd_dataframe = complete_parts_df.query('Type == "SSD" and 100 <= Price <= 150')
-sample_ssd = ssd_dataframe.sample(n=1)
-sample_ssd_name = sample_ssd.loc[sample_ssd.index[0], 'Name']
-sample_ssd_price = sample_ssd.loc[sample_ssd.index[0], 'Price']
-
 # Motherboard DataFrame
 motherboard_dataframe = complete_parts_df.query('Type == "Motherboard" and 75 <= Price <= 125')
 sample_motherboard = motherboard_dataframe.sample(n=1)
@@ -103,11 +97,124 @@ new_build = PCBuild()
 new_build.set_cpu(sample_cpu_name, sample_cpu_price)
 new_build.set_gpu(sample_gpu_name, sample_gpu_price)
 new_build.set_ram(sample_ram_name, sample_ram_price)
-new_build.set_hdd(sample_hdd_name, sample_hdd_price)
-new_build.set_ssd(sample_ssd_name, sample_ssd_price)
+new_build.set_storage(sample_hdd_name, sample_hdd_price)
 new_build.set_motherboard(sample_motherboard_name, sample_motherboard_price)
 new_build.set_power_supply(sample_ps_name, sample_ps_price)
 new_build.set_case(sample_case_name, sample_case_price)
 
 print(new_build)
 
+print('_' * 25)
+print('\n\n\n')
+print('_' * 25)
+
+build_500 = PCBuild()
+build_budget = 1000
+
+cpu_price = build_budget * 0.20
+gpu_price = build_budget * 0.25
+ram_price = build_budget * 0.10
+storage_price = build_budget * 0.15
+motherboard_price = build_budget * 0.10
+psu_price = build_budget * 0.10
+case_price = build_budget * 0.10
+
+valid_cpu_df = fetch_valid_parts(part_name="CPU", parts_dataframe=complete_parts_df, target_price=cpu_price)
+valid_gpu_df = fetch_valid_parts(part_name="GPU", parts_dataframe=complete_parts_df, target_price=gpu_price)
+valid_ram_df = fetch_valid_parts(part_name="RAM", parts_dataframe=complete_parts_df, target_price=ram_price)
+
+# Below will fetch both hdd and ssd to the same dataframe
+valid_storage_df = fetch_valid_parts(part_name="HDD", parts_dataframe=complete_parts_df, target_price=storage_price)
+valid_storage_df = pd.concat([valid_storage_df, fetch_valid_parts(part_name="SSD",
+                                                                  parts_dataframe=complete_parts_df,
+                                                                  target_price=storage_price)], ignore_index=True)
+
+
+valid_motherboard_df = fetch_valid_parts(part_name="Motherboard", parts_dataframe=complete_parts_df,
+                                         target_price=motherboard_price)
+valid_psu_df = fetch_valid_parts(part_name="Power Supply", parts_dataframe=complete_parts_df, target_price=psu_price)
+valid_case_df = fetch_valid_parts(part_name="Case", parts_dataframe=complete_parts_df, target_price=case_price)
+
+
+
+cpu = valid_cpu_df.sample(n=1)
+cpu_name = cpu.iloc[0]['Name']
+cpu_price = cpu.iloc[0]['Price']
+
+gpu = valid_gpu_df.sample(n=1)
+gpu_name = gpu.iloc[0]['Name']
+gpu_price = gpu.iloc[0]['Price']
+
+ram = valid_ram_df.sample(n=1)
+ram_name = ram.iloc[0]['Name']
+ram_price = ram.iloc[0]['Price']
+
+storage = valid_storage_df.sample(n=1)
+storage_name = storage.iloc[0]['Name']
+storage_price = storage.iloc[0]['Price']
+
+motherboard = valid_motherboard_df.sample(n=1)
+motherboard_name = motherboard.iloc[0]['Name']
+motherboard_price = motherboard.iloc[0]['Price']
+
+psu = valid_psu_df.sample(n=1)
+psu_name = psu.iloc[0]['Name']
+psu_price = psu.iloc[0]['Price']
+
+case = valid_case_df.sample(n=1)
+case_name = case.iloc[0]['Name']
+case_price = case.iloc[0]['Price']
+
+build_500.set_cpu(cpu_name, cpu_price)
+build_500.set_gpu(gpu_name, gpu_price)
+build_500.set_ram(ram_name, ram_price)
+build_500.set_storage(storage_name, storage_price)
+build_500.set_motherboard(motherboard_name, motherboard_price)
+build_500.set_power_supply(psu_name, psu_price)
+build_500.set_case(case_name, case_price)
+
+print(build_500)
+
+
+print('|' * 25)
+print('\n\n\n')
+print('|' * 25)
+
+
+method_build = generate_build_from_excel(build_price=1000, complete_parts_df=complete_parts_df)
+print(method_build)
+
+
+""" ChatGPT optimisation
+
+def select_and_set_part(build, valid_parts_df, part_name):
+    part = valid_parts_df.sample(n=1)
+    part_name = part.iloc[0]['Name']
+    part_price = part.iloc[0]['Price']
+    build.add_part(part_name, part_price)
+
+build_500 = PCBuild()
+build_budget = 1000
+
+part_ratios = {
+    "CPU": 0.20,
+    "GPU": 0.25,
+    "RAM": 0.10,
+    "HDD": 0.15,
+    "SSD": 0.15,  # Combined HDD and SSD to allocate the same budget
+    "Motherboard": 0.10,
+    "Power Supply": 0.10,
+    "Case": 0.10
+}
+
+for part_name, ratio in part_ratios.items():
+    target_price = build_budget * ratio
+    valid_parts_df = fetch_valid_parts(part_name, complete_parts_df, target_price)
+    if part_name == "SSD":
+        valid_parts_df = pd.concat([valid_parts_df, fetch_valid_parts(part_name="HDD", parts_dataframe=complete_parts_df, target_price=target_price)], ignore_index=True)
+    select_and_set_part(build_500, valid_parts_df, part_name)
+
+# Access the parts of the build
+print(build_500.parts)
+
+"""
