@@ -104,6 +104,19 @@ def allocate_budget(build_budget: Union[int, float]) -> dict:
         raise ValueError("Budget out of range")
 
 
+def get_component_info(df):
+    """
+    Fetches the name and price of a component from a DataFrame.
+
+    :param df: DataFrame containing information about available components.
+    :return: Tuple containing the name and price of the sampled component.
+    """
+    component = df.sample(n=1)
+    name = component.iloc[0]['Name']
+    price = component.iloc[0]['Price']
+    return name, price
+
+
 def generate_build_from_excel(build_price: Union[int, float], complete_parts_df: pd.DataFrame) -> PCBuild:
     """
     Generates a PC build based on a given budget and available parts information.
@@ -114,8 +127,9 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
     """
     new_build = PCBuild()
 
-    price_ratios = allocate_budget(build_budget=build_price)
+    price_ratios = allocate_budget(build_budget=build_price)  # Finds the % of each part as per the budget
 
+    # Calculates the price of each component by finding the percentage of the overall price
     cpu_price = build_price * price_ratios["CPU"]
     gpu_price = build_price * price_ratios["GPU"]
     ram_price = build_price * price_ratios["RAM"]
@@ -123,6 +137,8 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
     motherboard_price = build_price * price_ratios["Motherboard"]
     psu_price = build_price * price_ratios["Power Supply"]
     case_price = build_price * price_ratios["Case"]
+
+    # Fetches dataframes for each of the valid components
 
     valid_cpu_df = fetch_valid_parts(part_name="CPU", parts_dataframe=complete_parts_df, target_price=cpu_price)
     valid_gpu_df = fetch_valid_parts(part_name="GPU", parts_dataframe=complete_parts_df, target_price=gpu_price)
@@ -142,34 +158,16 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
 
     valid_case_df = fetch_valid_parts(part_name="Case", parts_dataframe=complete_parts_df, target_price=case_price)
 
-    cpu = valid_cpu_df.sample(n=1)
-    cpu_name = cpu.iloc[0]['Name']
-    cpu_price = cpu.iloc[0]['Price']
+    # Gets the information of each component
+    cpu_name, cpu_price = get_component_info(valid_cpu_df)
+    gpu_name, gpu_price = get_component_info(valid_gpu_df)
+    ram_name, ram_price = get_component_info(valid_ram_df)
+    storage_name, storage_price = get_component_info(valid_storage_df)
+    motherboard_name, motherboard_price = get_component_info(valid_motherboard_df)
+    psu_name, psu_price = get_component_info(valid_psu_df)
+    case_name, case_price = get_component_info(valid_case_df)
 
-    gpu = valid_gpu_df.sample(n=1)
-    gpu_name = gpu.iloc[0]['Name']
-    gpu_price = gpu.iloc[0]['Price']
-
-    ram = valid_ram_df.sample(n=1)
-    ram_name = ram.iloc[0]['Name']
-    ram_price = ram.iloc[0]['Price']
-
-    storage = valid_storage_df.sample(n=1)
-    storage_name = storage.iloc[0]['Name']
-    storage_price = storage.iloc[0]['Price']
-
-    motherboard = valid_motherboard_df.sample(n=1)
-    motherboard_name = motherboard.iloc[0]['Name']
-    motherboard_price = motherboard.iloc[0]['Price']
-
-    psu = valid_psu_df.sample(n=1)
-    psu_name = psu.iloc[0]['Name']
-    psu_price = psu.iloc[0]['Price']
-
-    case = valid_case_df.sample(n=1)
-    case_name = case.iloc[0]['Name']
-    case_price = case.iloc[0]['Price']
-
+    # Appends these parts into the build
     new_build.set_cpu(cpu_name, cpu_price)
     new_build.set_gpu(gpu_name, gpu_price)
     new_build.set_ram(ram_name, ram_price)

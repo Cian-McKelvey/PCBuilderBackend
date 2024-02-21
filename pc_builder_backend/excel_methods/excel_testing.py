@@ -176,10 +176,11 @@ build_500.set_case(case_name, case_price)
 print(build_500)
 
 
+print('\n\n\n')
 print('|' * 25)
 print('\n\n\n')
 print('|' * 25)
-
+print('\n\n\n')
 
 method_build = generate_build_from_excel(build_price=1000, complete_parts_df=complete_parts_df)
 print(method_build)
