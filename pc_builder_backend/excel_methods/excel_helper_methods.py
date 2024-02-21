@@ -138,8 +138,7 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
     psu_price = build_price * price_ratios["Power Supply"]
     case_price = build_price * price_ratios["Case"]
 
-    # Fetches dataframes for each of the valid components
-
+    # Fetches dataframes of parts that fit the specifications for each of the components
     valid_cpu_df = fetch_valid_parts(part_name="CPU", parts_dataframe=complete_parts_df, target_price=cpu_price)
     valid_gpu_df = fetch_valid_parts(part_name="GPU", parts_dataframe=complete_parts_df, target_price=gpu_price)
     valid_ram_df = fetch_valid_parts(part_name="RAM", parts_dataframe=complete_parts_df, target_price=ram_price)

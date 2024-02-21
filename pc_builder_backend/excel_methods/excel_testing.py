@@ -184,38 +184,3 @@ print('\n\n\n')
 
 method_build = generate_build_from_excel(build_price=1000, complete_parts_df=complete_parts_df)
 print(method_build)
-
-
-""" ChatGPT optimisation
-
-def select_and_set_part(build, valid_parts_df, part_name):
-    part = valid_parts_df.sample(n=1)
-    part_name = part.iloc[0]['Name']
-    part_price = part.iloc[0]['Price']
-    build.add_part(part_name, part_price)
-
-build_500 = PCBuild()
-build_budget = 1000
-
-part_ratios = {
-    "CPU": 0.20,
-    "GPU": 0.25,
-    "RAM": 0.10,
-    "HDD": 0.15,
-    "SSD": 0.15,  # Combined HDD and SSD to allocate the same budget
-    "Motherboard": 0.10,
-    "Power Supply": 0.10,
-    "Case": 0.10
-}
-
-for part_name, ratio in part_ratios.items():
-    target_price = build_budget * ratio
-    valid_parts_df = fetch_valid_parts(part_name, complete_parts_df, target_price)
-    if part_name == "SSD":
-        valid_parts_df = pd.concat([valid_parts_df, fetch_valid_parts(part_name="HDD", parts_dataframe=complete_parts_df, target_price=target_price)], ignore_index=True)
-    select_and_set_part(build_500, valid_parts_df, part_name)
-
-# Access the parts of the build
-print(build_500.parts)
-
-"""
