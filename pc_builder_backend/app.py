@@ -11,6 +11,7 @@ from build_database_methods import write_new_build, delete_build, edit_build
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
 from helper_methods import jwt_methods
+from excel_methods.excel_helper_methods import generate_build_from_excel
 from constants import *
 
 app = Flask(__name__)
@@ -148,6 +149,16 @@ PC BUILD ROUTES
 @app.route('/api/v1.0/builds/new', methods=['POST'])
 def new_pc_build():
     # This will require getting the user_id, pass it as the headers in the API request
+    """
+    Generate new build using excel method
+    use the provided budget from the incoming http json and dataframe should be loaded at app start and be
+    reloaded once per day
+
+
+    write new build from helper methods - this will require the dict of the above build, and the user_id which can be
+    passed in as a header
+
+    """
     pass
 
 
