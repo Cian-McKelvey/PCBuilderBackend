@@ -155,9 +155,13 @@ def new_pc_build():
     reloaded once per day
 
 
-    write new build from helper methods - this will require the dict of the above build, and the user_id which can be
+    write new build from helper methods - this will require the above build, and the user_id which can be
     passed in as a header
-
+    e.g.
+    write_new_build(builds_collection=builds_collection,
+                    builds_index_collection=build_index_collection,
+                    completed_build=my_pc_build,
+                    user_id="5")
     """
     pass
 
