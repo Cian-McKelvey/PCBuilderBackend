@@ -191,7 +191,7 @@ def new_pc_build():
 def delete_pc_build(build_id):
     user_id = None
     if 'x-user-id' in request.headers:
-        user_id = request.headers['x-user-id']
+        user_id = str(request.headers['x-user-id'])
     if not user_id:
         return jsonify({'message': 'user id not provided'}, 400)
 
@@ -212,11 +212,27 @@ def delete_pc_build(build_id):
 
 @app.route('/api/v1.0/builds/<string:build_id>/edit', methods=['PUT'])
 def edit_pc_build(build_id):
+    """
+    data = {
+    'part_type': 'CPU',
+    'new_part': {
+        'part_name': 'Intel Core i7',
+        'price': 300
+    }
+    }
+    """
+
+    data = request.json
+
+    part_type = data['part_type']
+    new_part = data['new_part']
+    part_dict = {new_part['part_name']: new_part['price']}
+
     try:
         success = edit_build(builds_collection=builds_collection,
                              build_id=build_id,
-                             part_name=request.json[''],  # This will be the part name
-                             new_part=request.json[''])  # This will be a dict of the new part
+                             part_name=part_type,
+                             new_part=part_dict)
         if success:
             return make_response(jsonify({"message": f"Successfully updated build - {build_id}"}), 200)
         else:
