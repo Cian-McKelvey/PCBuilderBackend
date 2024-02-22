@@ -105,6 +105,19 @@ class PCBuild:
         print(f"Case: {self.case} - Price: £{self.case_price}\n")
         f"Overall Price: £{self.overall_price:.2f}\n"  # Rounds to 2 decimal places
 
+    def is_valid(self):
+        attributes = ['cpu', 'gpu', 'ram', 'storage', 'motherboard', 'power_supply', 'case']
+        prices = ['cpu_price', 'gpu_price', 'ram_price', 'storage_price', 'motherboard_price', 'power_supply_price', 'case_price']
+
+        for attr, price_attr in zip(attributes, prices):
+            if getattr(self, attr) is None:
+                return False
+            if getattr(self, price_attr) <= 0:
+                return False
+
+        return True
+
+
     """ 
     Allows the creation of a JSON object of the complete build
     Stores each component of the pc as a dictionary containing the part and its price

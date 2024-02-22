@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import bcrypt
 import jwt
@@ -8,10 +9,11 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
 from build_database_methods import write_new_build, delete_build, edit_build
+from pc_builder_backend.pc_build import PCBuild
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
 from helper_methods import jwt_methods
-from excel_methods.excel_helper_methods import generate_build_from_excel
+from excel_methods.excel_helper_methods import generate_build_from_excel, read_excel_data
 from constants import *
 
 app = Flask(__name__)
@@ -33,10 +35,22 @@ build_index_collection = database[BUILDS_INDEX_COLLECTION]
 users_collection = database[USER_COLLECTION]
 blacklisted_tokens_collection = database[BLACKLIST_COLLECTION]
 
+# Get the current directory of the script
+current_dir = os.path.dirname(os.path.realpath(__file__))
+# Construct the path to the Excel file relative to the project root
+excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components.xlsx'))
+
+complete_parts_df = read_excel_data(excel_file)
+
 
 @app.route("/")
 def home_page():
     return render_template('home.html')
+
+
+@app.route("/admin")
+def admin_page():
+    return "Admin Page"
 
 
 """
@@ -148,22 +162,29 @@ PC BUILD ROUTES
 
 @app.route('/api/v1.0/builds/new', methods=['POST'])
 def new_pc_build():
-    # This will require getting the user_id, pass it as the headers in the API request
-    """
-    Generate new build using excel method
-    use the provided budget from the incoming http json and dataframe should be loaded at app start and be
-    reloaded once per day
 
+    user_id = None
+    if 'x-user-id' in request.headers:
+        user_id = str(request.headers['x-user-id'])  # Makes sure the id is a string
+    if not user_id:
+        return jsonify({'message': 'user id not provided'}, 400)
 
-    write new build from helper methods - this will require the above build, and the user_id which can be
-    passed in as a header
-    e.g.
-    write_new_build(builds_collection=builds_collection,
-                    builds_index_collection=build_index_collection,
-                    completed_build=my_pc_build,
-                    user_id="5")
-    """
-    pass
+    new_build_price = request.json['price']
+    if new_build_price > 2500:
+        return make_response(jsonify({"message": "Price is too high to generate build"}), 400)
+    new_build = generate_build_from_excel(build_price=new_build_price, complete_parts_df=complete_parts_df)
+
+    if not new_build.is_valid():
+        return make_response(jsonify({"message": "Error while generating new build"}), 400)
+
+    try:
+        write_new_build(builds_collection=builds_collection,
+                        builds_index_collection=build_index_collection,
+                        completed_build=new_build,
+                        user_id=user_id)
+        return make_response(jsonify({"Build": PCBuild.to_dict(new_build, user_id)}))
+    except PyMongoError as e:
+        return make_response(jsonify({"Message": str(e)}), 400)
 
 
 @app.route('/api/v1.0/builds/<string:build_id>/delete', methods=['DELETE'])
