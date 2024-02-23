@@ -105,6 +105,7 @@ class PCBuild:
         print(f"Case: {self.case} - Price: £{self.case_price}\n")
         f"Overall Price: £{self.overall_price:.2f}\n"  # Rounds to 2 decimal places
 
+    # This might need to be uppercase
     def is_valid(self):
         attributes = ['cpu', 'gpu', 'ram', 'storage', 'motherboard', 'power_supply', 'case']
         prices = ['cpu_price', 'gpu_price', 'ram_price', 'storage_price', 'motherboard_price', 'power_supply_price', 'case_price']
