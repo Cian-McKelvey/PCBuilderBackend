@@ -11,7 +11,17 @@ def fetch_links(url) -> list:
     return absolute_links
 
 
+def fetch_links_with_page_mentioned(url) -> list:
+    links = []
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    for link in soup.find_all('a', href=True):
+        if 'page' in link['href']:
+            links.append(link['href'])
+    return links
+
+
 url = 'https://pcparts.uk/browse/cpus'
-links = fetch_links(url)
+links = fetch_links_with_page_mentioned(url)
 for link in links:
     print(link)
