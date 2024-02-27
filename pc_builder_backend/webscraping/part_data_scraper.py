@@ -1,5 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+from pc_builder_backend.excel_methods.excel_helper_methods import create_data_frame, combine_dataframes, write_excel_data
+import pandas as pd
+import os
 
 
 def scrape_part_data(html_content):
@@ -226,6 +229,32 @@ def main():
     print(len(case_storage_dict))
     print(case_storage_dict)
     print("\n")
+
+    cpu_df = create_data_frame(part_type="CPU", part_dict=cpu_storage_dict)
+
+    gpu_df = create_data_frame(part_type="GPU", part_dict=gpu_storage_dict)
+
+    ram_df = create_data_frame(part_type="RAM", part_dict=ram_storage_dict)
+
+    hdd_df = create_data_frame(part_type="HDD", part_dict=hdd_storage_dict)
+
+    ssd_df = create_data_frame(part_type="SSD", part_dict=ssd_storage_dict)
+
+    motherboard_df = create_data_frame(part_type="Motherboard", part_dict=motherboard_storage_dict)
+
+    psu_df = create_data_frame(part_type="Power Supply", part_dict=power_supply_storage_dict)
+
+    case_df = create_data_frame(part_type="Case", part_dict=case_storage_dict)
+
+    complete_df = combine_dataframes(cpu_df, gpu_df, ram_df, hdd_df, ssd_df, motherboard_df, psu_df, case_df)
+    print(complete_df)
+
+    # Get the current directory of the script
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    # Construct the path to the Excel file relative to the project root
+    excel_file = os.path.abspath(os.path.join(current_dir, '../../parts/components.xlsx'))
+
+    write_excel_data(filepath=excel_file, dataframe=complete_df)
 
 
 if __name__ == "__main__":

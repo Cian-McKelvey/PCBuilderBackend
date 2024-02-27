@@ -16,6 +16,19 @@ def read_excel_data(filepath: str) -> pd.DataFrame:
     return dataframe
 
 
+def write_excel_data(filepath: str, dataframe: pd.DataFrame) -> None:
+    """
+    Clears the contents of the Excel sheet and writes the DataFrame to it.
+
+    :param filepath: File path of the Excel file.
+    :param dataframe: DataFrame to be written to the Excel file.
+    """
+    # Create an Excel writer object - write mode will clear the object first
+    with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
+        # Write the DataFrame to the Excel file
+        dataframe.to_excel(writer, index=False)
+
+
 def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_price: Union[int, float]) -> pd.DataFrame:
     """
     Fetches valid parts from a DataFrame based on the specified part name and target price range.
@@ -176,3 +189,40 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
     new_build.set_case(case_name, case_price)
 
     return new_build
+
+
+def create_data_frame(part_type: str, part_dict: dict) -> pd.DataFrame:
+    """
+    Creates a pandas DataFrame from a dictionary of part names and prices.
+
+    :param part_type: Type of the part (e.g., CPU, GPU, RAM).
+    :param part_dict: Dictionary containing part names as keys and corresponding prices as values.
+    :return: DataFrame with columns 'Type', 'Name', and 'Price' representing parts and their prices.
+    """
+    part_data = []
+
+    for name, price in part_dict.items():
+        try:
+            # Attempt to convert the price to a float
+            float_price = float(price[1:])
+            # Append part details to part_data list
+            part_data.append({'Type': part_type, 'Name': name, 'Price': float_price})
+        except ValueError:
+            # If conversion fails, skip this entry
+            pass
+
+    # Create a pandas DataFrame from the list of dictionaries
+    created_df = pd.DataFrame(part_data)
+
+    return created_df
+
+
+def combine_dataframes(*args) -> pd.DataFrame:
+    """
+    Combines multiple DataFrames into a single DataFrame.
+
+    :param args: Variable number of DataFrame arguments to be combined.
+    :return: Combined DataFrame.
+    """
+    combined_df = pd.concat(args, ignore_index=True)
+    return combined_df
