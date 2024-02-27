@@ -109,7 +109,7 @@ print('\n\n\n')
 print('_' * 25)
 
 build_500 = PCBuild()
-build_budget = 1000
+build_budget = 500
 
 cpu_price = build_budget * 0.20
 gpu_price = build_budget * 0.25

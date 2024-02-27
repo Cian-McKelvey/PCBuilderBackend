@@ -23,4 +23,4 @@ RELATIONAL_DATABASE_URL = os.getenv("RELATIONAL_DATABASE_URL")
 RELATIONAL_TABLE_NAME = os.getenv("RELATIONAL_TABLE_NAME")
 
 # Functional Args
-PART_COST_RANGE = 25  # Outlines the range of part price e.g. x-20% -> x+20%
+PART_COST_RANGE = 25  # Outlines the range of part price e.g. x-25% -> x+25%
