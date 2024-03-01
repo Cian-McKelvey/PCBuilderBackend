@@ -68,9 +68,9 @@ def allocate_budget(build_budget: Union[int, float]) -> dict:
 
     if build_budget <= 500:
         part_ratios = {
-            "CPU": 0.20,
+            "CPU": 0.15,
             "GPU": 0.25,
-            "RAM": 0.10,
+            "RAM": 0.15,
             "Storage": 0.15,  # Combined SSD and HDD
             "Motherboard": 0.10,
             "Power Supply": 0.10,
@@ -79,23 +79,23 @@ def allocate_budget(build_budget: Union[int, float]) -> dict:
         return part_ratios
     elif 500 < build_budget <= 1000:
         part_ratios = {
-            "CPU": 0.20,
+            "CPU": 0.15,
             "GPU": 0.30,
-            "RAM": 0.15,
+            "RAM": 0.20,
             "Storage": 0.15,  # Combined SSD and HDD
             "Motherboard": 0.10,
-            "Power Supply": 0.10,
-            "Case": 0.10
+            "Power Supply": 0.05,
+            "Case": 0.05
         }
         return part_ratios
 
     elif 1000 < build_budget <= 1500:
         part_ratios = {
-            "CPU": 0.25,
-            "GPU": 0.40,
-            "RAM": 0.10,
+            "CPU": 0.20,
+            "GPU": 0.35,
+            "RAM": 0.20,
             "Storage": 0.10,  # Combined SSD and HDD
-            "Motherboard": 0.10,
+            "Motherboard": 0.05,
             "Power Supply": 0.05,
             "Case": 0.05
         }
@@ -103,11 +103,11 @@ def allocate_budget(build_budget: Union[int, float]) -> dict:
 
     elif 1500 < build_budget <= 2000:
         part_ratios = {
-            "CPU": 0.25,
-            "GPU": 0.40,
-            "RAM": 0.10,
+            "CPU": 0.20,
+            "GPU": 0.35,
+            "RAM": 0.20,
             "Storage": 0.10,  # Combined SSD and HDD
-            "Motherboard": 0.10,
+            "Motherboard": 0.05,
             "Power Supply": 0.05,
             "Case": 0.05
         }

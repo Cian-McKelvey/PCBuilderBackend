@@ -190,6 +190,14 @@ def delete_build(builds_collection: Collection,
 
 
 def fetch_user_builds(builds_collection: Collection, builds_index_collection: Collection, user_id: str) -> list:
+    """
+    Fetches builds associated with a user from MongoDB collections.
+
+    :param builds_collection: MongoDB collection for storing builds.
+    :param builds_index_collection: MongoDB collection for storing build indexes.
+    :param user_id: User identifier associated with the builds.
+    :return: List of builds associated with the specified user.
+    """
     fetched_builds = []
 
     user_build_ids = builds_index_collection.find_one({"user_id": user_id})
@@ -200,20 +208,3 @@ def fetch_user_builds(builds_collection: Collection, builds_index_collection: Co
         fetched_builds.append(build)
 
     return fetched_builds
-
-"""
-# Fetches all transfers associated with an email
-def receive_transfer_by_email(transfer_collection: Collection, email: str):
-    # Combined query fetches if the email = sender_email OR receiver_email
-    combined_query = {
-        "$or": [
-            {"sender_email": email},
-            {"receiver_email": email}
-        ]
-    }
-
-    result = list(transfer_collection.find(combined_query, {"_id": 0}))
-    result.reverse()  # Reverses the order of the fetched items, so they're shown most recent first in UI
-
-    return result
-"""
