@@ -1,5 +1,6 @@
 import datetime
 import os
+from functools import wraps
 
 import bcrypt
 import jwt
@@ -40,6 +41,30 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components.xlsx'))
 
 complete_parts_df = read_excel_data(excel_file)
+
+
+# Decorator function used to protect from unregistered calls by requiring a valid token
+def jwt_required(func):
+    @wraps(func)
+    def jwt_required_wrapper(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return jsonify({'message': 'Token is missing'}, 401)
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        except Exception as e:
+            return jsonify({'message': f'Error decoding token: {str(e)}'}, 401)
+
+        blacklist_token = blacklisted_tokens_collection.find_one({"token": token})
+        if blacklist_token is not None:
+            return make_response({"message": "Token is blacklisted, can no longer be used"}, 401)
+
+        return func(*args, **kwargs)
+
+    return jwt_required_wrapper
 
 
 @app.route("/")
