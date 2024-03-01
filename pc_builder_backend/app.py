@@ -146,7 +146,10 @@ def new_user():
 @app.route('/api/v1.0/users/<string:id>/delete', methods=['DELETE'])
 @jwt_required
 def delete_user(id):
-    delete_result = delete_existing_user(users_collection, id)
+    delete_result = delete_existing_user(builds_collection=builds_collection,
+                                         builds_index_collection=build_index_collection,
+                                         users_collection=users_collection,
+                                         user_id=id)
 
     if delete_result:
         return make_response(jsonify({}), 204)

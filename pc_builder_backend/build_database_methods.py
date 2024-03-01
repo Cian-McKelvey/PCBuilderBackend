@@ -3,56 +3,6 @@ from pymongo.errors import PyMongoError
 
 from pc_builder_backend.pc_build import PCBuild
 from logger_config.logger_config import create_logger
-from pprint import pprint
-
-
-"""
-On the write new build method, the main thing that needs to be done is to define a structure for the database 
-that holds the index of a user completed build, once that is done, the update_one method will be hashed out 
-accordingly, and it all should work after whatever tweaks that are required are implemented.
-
-BUILD STRUCTURE:
-{
-    "CPU": {"value": pc_build.cpu, "price": pc_build.cpu_price},
-    "GPU": {"value": pc_build.gpu, "price": pc_build.gpu_price},
-    "RAM": {"value": pc_build.ram, "price": pc_build.ram_price},
-    "SSD": {"value": pc_build.ssd, "price": pc_build.ssd_price},
-    "HDD": {"value": pc_build.hdd, "price": pc_build.hdd_price},
-    "Motherboard": {"value": pc_build.motherboard, "price": pc_build.motherboard_price},
-    "Power Supply": {"value": pc_build.power_supply, "price": pc_build.power_supply_price},
-    "Overall Price": pc_build.overall_price,
-    "build_id": build_id,
-    "user_id" : user_id,
-    "created_at": datetime.datetime.now()
-}
-
-BuildIndexStructure:
-{
-    "user_id": example_user_id,
-    "created_build_list": []
-}
-
-"""
-
-# Get the absolute path to the project root
-# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# # Specify the full path for the log file in the 'logs' directory
-# log_file_path = os.path.join(project_root, 'logs', 'PCBuilds.log')
-#
-# logger = logging.getLogger(__name__)
-#
-# # Sets the lowest level of logger to the debug level (lowest)
-# logger.setLevel(logging.DEBUG)  # This will need to be changed in the real app
-# formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-# # Create a console handler and set the formatter
-# console_handler = logging.StreamHandler()
-# console_handler.setFormatter(formatter)
-# # Sets the logging to write to app.log too
-# file_handler = logging.FileHandler(filename=log_file_path)
-# file_handler.setFormatter(formatter)  # Sets the format
-# # Add the handlers to the logger
-# logger.addHandler(console_handler)
-# logger.addHandler(file_handler)
 
 
 # Need to get this create logger method working, compare to the user logger file cause that works for some reason

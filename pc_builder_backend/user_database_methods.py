@@ -5,7 +5,6 @@ from pymongo.errors import PyMongoError
 from logger_config.logger_config import create_logger
 from user import User
 
-
 logger = create_logger('Users.log')
 
 
@@ -15,7 +14,6 @@ def validate_user(user_collection: Collection, username: str, password: str) -> 
 
 def add_new_user(user_collection: Collection, first_name: str, last_name: str,
                  username: str, provided_password: str) -> bool:
-
     # Hash the provided password
     hashed_password = bcrypt.hashpw(provided_password.encode('utf-8'), bcrypt.gensalt())
 
@@ -33,8 +31,9 @@ def add_new_user(user_collection: Collection, first_name: str, last_name: str,
         return False
 
 
-# Deletes a user by user_id
-def delete_existing_user(users_collection: Collection, user_id: str) -> bool:
+# Deletes a user by user_id - Should also delete all their builds
+def delete_existing_user(builds_collection: Collection, builds_index_collection: Collection,
+                         users_collection: Collection, user_id: str) -> bool:
     try:
         result = users_collection.delete_one({'user_id': user_id})
         print(f"Deleted: {result}")
@@ -42,7 +41,18 @@ def delete_existing_user(users_collection: Collection, user_id: str) -> bool:
         # Check if a document was deleted
         if result.deleted_count > 0:
             logger.info(f"Delete user account successfully - {user_id}")
+
+            # Fetches users builds
+            user_created_builds = builds_index_collection.find_one({"user_id": user_id})
+            user_build_ids_list = list(user_created_builds["created_build_list"])
+            # Deletes all builds created by the user on account deletion
+            for build_id in user_build_ids_list:
+                builds_collection.delete_one({"build_id": build_id})
+
+            builds_index_collection.delete_one({"user_id": user_id})
+            logger.info(f"Deleted all builds from user account - {user_id}")
             return True
+
         else:
             logger.info(f"Failed to delete user account : {user_id}")
             return False
@@ -58,7 +68,8 @@ def update_user_password(user_collection: Collection, username: str, old_passwor
         new_password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
 
         try:
-            update_result = user_collection.update_one({"username": username}, {"$set": {"password": new_password_hash}})
+            update_result = user_collection.update_one({"username": username},
+                                                       {"$set": {"password": new_password_hash}})
             if update_result.modified_count > 0:
                 logger.info(f"Password updated for account : {username}")
                 return True
