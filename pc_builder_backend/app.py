@@ -8,11 +8,10 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
-from build_database_methods import write_new_build, delete_build, edit_build
+from build_database_methods import write_new_build, delete_build, edit_build, fetch_user_builds
 from pc_builder_backend.pc_build import PCBuild
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
-from helper_methods import jwt_methods
 from excel_methods.excel_helper_methods import generate_build_from_excel, read_excel_data
 from constants import *
 
@@ -110,7 +109,8 @@ def new_user():
         add_new_user(user_collection=users_collection, first_name=request.form["first_name"],
                      last_name=request.form["last_name"], username=request.form["username"],
                      provided_password=request.form["password"])
-        return make_response(jsonify({"message": "New user and password added successfully"}), 201)
+        return make_response(jsonify({"message": "New user and password added successfully",
+                                      "username": request.form["username"]}), 201)
 
     except PyMongoError as e:
         print("Could not add new user")
@@ -241,6 +241,23 @@ def edit_pc_build(build_id):
     except PyMongoError as e:
         print(f"ERROR: PyMongo Error Flagged - {e}")
         return make_response(jsonify({"message": f"Error: {e}"}))
+
+
+@app.route('/api/v1.0/builds/fetch_all', methods=['GET'])
+def get_all_builds():
+    user_id = request.headers.get('x-user-id')
+    if not user_id:
+        return jsonify({'message': 'user id not provided'}), 400
+
+    try:
+        user_created_builds = fetch_user_builds(builds_collection=builds_collection,
+                                                builds_index_collection=build_index_collection,
+                                                user_id=user_id)
+
+        return jsonify({'builds': user_created_builds}), 200
+
+    except PyMongoError as e:
+        return jsonify({"message": f"Error: {e}"}), 500
 
 
 if __name__ == "__main__":

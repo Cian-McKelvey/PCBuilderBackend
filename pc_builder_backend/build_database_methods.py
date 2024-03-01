@@ -3,6 +3,7 @@ from pymongo.errors import PyMongoError
 
 from pc_builder_backend.pc_build import PCBuild
 from logger_config.logger_config import create_logger
+from pprint import pprint
 
 
 """
@@ -186,3 +187,33 @@ def delete_build(builds_collection: Collection,
     except PyMongoError as e:
         logger.error(f"Build could not be deleted, ERROR: {e}")
         return False
+
+
+def fetch_user_builds(builds_collection: Collection, builds_index_collection: Collection, user_id: str) -> list:
+    fetched_builds = []
+
+    user_build_ids = builds_index_collection.find_one({"user_id": user_id})
+    user_build_ids_list = list(user_build_ids["created_build_list"])
+
+    for build_id in user_build_ids_list:
+        build = builds_collection.find_one({"build_id": build_id}, {"_id": 0})
+        fetched_builds.append(build)
+
+    return fetched_builds
+
+"""
+# Fetches all transfers associated with an email
+def receive_transfer_by_email(transfer_collection: Collection, email: str):
+    # Combined query fetches if the email = sender_email OR receiver_email
+    combined_query = {
+        "$or": [
+            {"sender_email": email},
+            {"receiver_email": email}
+        ]
+    }
+
+    result = list(transfer_collection.find(combined_query, {"_id": 0}))
+    result.reverse()  # Reverses the order of the fetched items, so they're shown most recent first in UI
+
+    return result
+"""
