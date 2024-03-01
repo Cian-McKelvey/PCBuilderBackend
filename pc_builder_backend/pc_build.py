@@ -124,18 +124,17 @@ class PCBuild:
     Stores each component of the pc as a dictionary containing the part and its price
     Stores the overall price as its own singular non-dict value
     """
-    @staticmethod
-    def to_dict(pc_build, user_id: str) -> dict:
+    def to_dict(self, user_id: str) -> dict:
         return {
-            "CPU": {"value": pc_build.cpu, "price": pc_build.cpu_price},
-            "GPU": {"value": pc_build.gpu, "price": pc_build.gpu_price},
-            "RAM": {"value": pc_build.ram, "price": pc_build.ram_price},
-            "Storage": {"value": pc_build.storage, "price": pc_build.storage_price},
-            "Motherboard": {"value": pc_build.motherboard, "price": pc_build.motherboard_price},
-            "PowerSupply": {"value": pc_build.power_supply, "price": pc_build.power_supply_price},
-            "Case": {"value": pc_build.case, "price": pc_build.case_price},
-            "OverallPrice": pc_build.overall_price,
-            "build_id": pc_build.build_id,
+            "CPU": {"value": self.cpu, "price": self.cpu_price},
+            "GPU": {"value": self.gpu, "price": self.gpu_price},
+            "RAM": {"value": self.ram, "price": self.ram_price},
+            "Storage": {"value": self.storage, "price": self.storage_price},
+            "Motherboard": {"value": self.motherboard, "price": self.motherboard_price},
+            "PowerSupply": {"value": self.power_supply, "price": self.power_supply_price},
+            "Case": {"value": self.case, "price": self.case_price},
+            "OverallPrice": self.overall_price,
+            "build_id": self.build_id,
             "user_id": user_id,
             "created_at": datetime.datetime.now()
         }

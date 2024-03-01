@@ -111,6 +111,7 @@ def login():
 
 
 @app.route('/api/v1.0/logout', methods=['GET'])
+@jwt_required
 def logout():
     # Gets the token, and writes it to a database of blacklisted tokens
     token = request.headers['x-access-token']
@@ -143,6 +144,7 @@ def new_user():
 
 
 @app.route('/api/v1.0/users/<string:id>/delete', methods=['DELETE'])
+@jwt_required
 def delete_user(id):
     delete_result = delete_existing_user(users_collection, id)
 
@@ -153,6 +155,7 @@ def delete_user(id):
 
 
 @app.route('/api/v1.0/users/edit/password', methods=['PUT'])
+@jwt_required
 def edit_user_password():
 
     non_valid_username = unique_username_check(user_collection=users_collection, username=request.form["username"])
@@ -186,6 +189,7 @@ PC BUILD ROUTES
 
 
 @app.route('/api/v1.0/builds/new', methods=['POST'])
+@jwt_required
 def new_pc_build():
 
     user_id = None
@@ -207,12 +211,13 @@ def new_pc_build():
                         builds_index_collection=build_index_collection,
                         completed_build=new_build,
                         user_id=user_id)
-        return make_response(jsonify({"Build": PCBuild.to_dict(new_build, user_id)}))
+        return make_response(jsonify({"Build": new_build.to_dict(user_id=user_id)}))
     except PyMongoError as e:
         return make_response(jsonify({"Message": str(e)}), 400)
 
 
 @app.route('/api/v1.0/builds/<string:build_id>/delete', methods=['DELETE'])
+@jwt_required
 def delete_pc_build(build_id):
     user_id = None
     if 'x-user-id' in request.headers:
@@ -236,16 +241,8 @@ def delete_pc_build(build_id):
 
 
 @app.route('/api/v1.0/builds/<string:build_id>/edit', methods=['PUT'])
+@jwt_required
 def edit_pc_build(build_id):
-    """
-    data = {
-    'part_type': 'CPU',
-    'new_part': {
-        'part_name': 'Intel Core i7',
-        'price': 300
-    }
-    }
-    """
 
     data = request.json
 
@@ -269,6 +266,7 @@ def edit_pc_build(build_id):
 
 
 @app.route('/api/v1.0/builds/fetch_all', methods=['GET'])
+@jwt_required
 def get_all_builds():
     user_id = request.headers.get('x-user-id')
     if not user_id:

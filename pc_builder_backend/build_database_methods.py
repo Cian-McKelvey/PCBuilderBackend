@@ -73,7 +73,7 @@ def write_new_build(builds_collection: Collection,
     :param user_id: User identifier associated with the build.
     """
     # Changes the build to a dict using the current user id
-    build = PCBuild.to_dict(completed_build, user_id=user_id)
+    build = completed_build.to_dict(user_id=user_id)
     try:
         builds_collection.insert_one(build)
         logger.info(f"New Build added to MongoDB collection {completed_build.build_id}")
