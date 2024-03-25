@@ -286,5 +286,15 @@ def get_all_builds():
         return jsonify({"message": f"Error: {e}"}), 500
 
 
+# This will need to create a list of all parts and send it to the frontend on initialisation of the frontend.
+# Then it can be used to edit the build on the frontend etc...
+@app.route('/api/v1.0/parts/fetch_all', methods=['GET'])
+def fetch_all_parts():
+    # Return the entire list. That's it
+    parts_list = complete_parts_df.values.tolist()
+
+    # Finish here
+
+
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
