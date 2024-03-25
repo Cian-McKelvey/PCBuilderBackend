@@ -201,7 +201,7 @@ def new_pc_build():
     if not user_id:
         return jsonify({'message': 'user id not provided'}, 400)
 
-    new_build_price = request.json['price']
+    new_build_price = int(request.json['price'])
     if new_build_price > 2500:
         return make_response(jsonify({"message": "Price is too high to generate build"}), 400)
     new_build = generate_build_from_excel(build_price=new_build_price, complete_parts_df=complete_parts_df)
