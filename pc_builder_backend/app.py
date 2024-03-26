@@ -290,10 +290,15 @@ def get_all_builds():
 # Then it can be used to edit the build on the frontend etc...
 @app.route('/api/v1.0/parts/fetch_all', methods=['GET'])
 def fetch_all_parts():
-    # Return the entire list. That's it
-    parts_list = complete_parts_df.values.tolist()
+    try:
+        parts_list = complete_parts_df.values.tolist()
+    except Exception as e:
+        return make_response(jsonify({'message': f'Parts list could not be converted to list: {e}'}), 400)
 
-    # Finish here
+    if len(parts_list) > 0:
+        return make_response(jsonify({'parts': parts_list}), 200)
+    else:
+        return make_response(jsonify({'message': 'No Parts Could be found'}), 404)
 
 
 if __name__ == "__main__":
