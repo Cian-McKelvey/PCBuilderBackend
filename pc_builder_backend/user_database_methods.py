@@ -44,14 +44,19 @@ def delete_existing_user(builds_collection: Collection, builds_index_collection:
 
             # Fetches users builds
             user_created_builds = builds_index_collection.find_one({"user_id": user_id})
-            user_build_ids_list = list(user_created_builds["created_build_list"])
-            # Deletes all builds created by the user on account deletion
-            for build_id in user_build_ids_list:
-                builds_collection.delete_one({"build_id": build_id})
+            if user_created_builds is not None:
+                user_build_ids_list = user_created_builds.get("created_build_list", [])
+                # Deletes all builds created by the user on account deletion
+                for build_id in user_build_ids_list:
+                    builds_collection.delete_one({"build_id": build_id})
 
-            builds_index_collection.delete_one({"user_id": user_id})
-            logger.info(f"Deleted all builds from user account - {user_id}")
-            return True
+                # After all builds are deleted, delete the user's entry from the index collection
+                builds_index_collection.delete_one({"user_id": user_id})
+                logger.info(f"Deleted all builds from user account - {user_id}")
+                return True
+            else:
+                logger.info(f"No builds to be deleted for account = {user_id}")
+                return True  # No builds to delete, still consider it a success
 
         else:
             logger.info(f"Failed to delete user account : {user_id}")

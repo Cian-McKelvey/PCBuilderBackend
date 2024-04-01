@@ -146,15 +146,17 @@ def fetch_user_builds(builds_collection: Collection, builds_index_collection: Co
     :param builds_collection: MongoDB collection for storing builds.
     :param builds_index_collection: MongoDB collection for storing build indexes.
     :param user_id: User identifier associated with the builds.
-    :return: List of builds associated with the specified user.
+    :return: List of builds associated with the specified user (empty list otherwise).
     """
     fetched_builds = []
 
     user_build_ids = builds_index_collection.find_one({"user_id": user_id})
-    user_build_ids_list = list(user_build_ids["created_build_list"])
 
-    for build_id in user_build_ids_list:
-        build = builds_collection.find_one({"build_id": build_id}, {"_id": 0})
-        fetched_builds.append(build)
+    if user_build_ids is not None:
+        user_build_ids_list = list(user_build_ids["created_build_list"])
+
+        for build_id in user_build_ids_list:
+            build = builds_collection.find_one({"build_id": build_id}, {"_id": 0})
+            fetched_builds.append(build)
 
     return fetched_builds
