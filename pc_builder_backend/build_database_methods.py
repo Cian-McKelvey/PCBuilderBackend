@@ -102,6 +102,47 @@ def edit_build(builds_collection: Collection, build_id: str, part_name: str, new
             return False
 
 
+def update_build(builds_collection: Collection, build_data: dict) -> bool:
+    """
+    Updates or inserts a build in the MongoDB collection based on the provided build data dictionary.
+
+    :param builds_collection: MongoDB collection for storing builds.
+    :param build_data: Dictionary representing the entire build.
+    :return: A True/False value depending on if the update/insert was successful.
+    """
+    try:
+        build_id = build_data.get("build_id")
+        if not build_id:
+            logger.error("Invalid build data: 'build_id' field is missing.")
+            return False
+
+        # Validate the build data (you can add more validation as per your requirements)
+        if not isinstance(build_data, dict):
+            logger.error("Invalid build data: Expected a dictionary.")
+            return False
+
+        # Check if the build exists in the database
+        existing_build = builds_collection.find_one({"build_id": build_id})
+
+        if existing_build:
+            # Update the existing build
+            result = builds_collection.replace_one({"build_id": build_id}, build_data)
+            if result.modified_count > 0:
+                logger.info(f"Build with ID {build_id} has been successfully updated.")
+            else:
+                logger.warning(f"No changes were made to the build with ID {build_id}.")
+        else:
+            # Insert a new build
+            result = builds_collection.insert_one(build_data)
+            if result.inserted_id:
+                logger.info(f"New build with ID {build_id} has been successfully inserted.")
+
+        return True
+    except PyMongoError as e:
+        logger.error(f"Error updating or inserting the build: {e}")
+        return False
+
+
 def delete_build(builds_collection: Collection,
                  builds_index_collection: Collection,
                  build_id: str,

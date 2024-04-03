@@ -9,7 +9,7 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
-from build_database_methods import write_new_build, delete_build, edit_build, fetch_user_builds
+from build_database_methods import write_new_build, delete_build, edit_build, fetch_user_builds, update_build
 from pc_builder_backend.pc_build import PCBuild
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
@@ -264,8 +264,24 @@ def edit_pc_build(build_id):
             return make_response(jsonify({"message": f"Failed to edit build - {build_id}"}), 400)
 
     except PyMongoError as e:
-        print(f"ERROR: PyMongo Error Flagged - {e}")
-        return make_response(jsonify({"message": f"Error: {e}"}))
+        return make_response(jsonify({"message": f"Error: {e}"}), 400)
+
+
+@app.route('/api/v1.0/builds/<string:build_id>/replace', methods=['PUT'])
+@jwt_required
+def replace_pc_build(build_id):
+
+    data = request.json
+
+    try:
+        success = update_build(builds_collection=builds_collection, build_data=data)
+        if success:
+            return make_response(jsonify({"message": "Successfully updated build"}), 200)
+        else:
+            return make_response(jsonify({"message": f"Build: {build_id} could not be updated"}), 400)
+
+    except PyMongoError as e:
+        return make_response(jsonify({"message": f"Error: {e}"}), 400)
 
 
 @app.route('/api/v1.0/builds/fetch_all', methods=['GET'])
