@@ -10,9 +10,9 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
 from build_database_methods import write_new_build, delete_build, edit_build, fetch_user_builds, update_build
-from pc_builder_backend.pc_build import PCBuild
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
+from admin_database_methods import fetch_app_info, fetch_all_users
 from excel_methods.excel_helper_methods import generate_build_from_excel, read_excel_data
 from constants import *
 
@@ -51,20 +51,39 @@ def jwt_required(func):
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
-            return jsonify({'message': 'Token is missing'}, 401)
+            return make_response(jsonify({'message': 'Token is missing'}, 401))
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         except Exception as e:
-            return jsonify({'message': f'Error decoding token: {str(e)}'}, 401)
+            return make_response(jsonify({'message': f'Error decoding token: {str(e)}'}, 401))
 
         blacklist_token = blacklisted_tokens_collection.find_one({"token": token})
         if blacklist_token is not None:
-            return make_response({"message": "Token is blacklisted, can no longer be used"}, 401)
+            return make_response(jsonify({"message": "Token is blacklisted, can no longer be used"}), 401)
 
         return func(*args, **kwargs)
 
     return jwt_required_wrapper
+
+
+# Decorator Function to Check if the User is Admin
+def admin_required(func):
+    @wraps(func)
+    def admin_required_wrapper(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return jsonify({'message': 'Token is missing'}, 401)
+
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        if data['admin']:
+            return func(*args, **kwargs)
+        else:
+            return make_response(jsonify({'message': 'Admin Access is required'}), 401)
+
+    return admin_required_wrapper
 
 
 @app.route("/")
@@ -97,9 +116,11 @@ def login():
                 # Token is created that contains the username and expiry time
                 token = jwt.encode({
                     'user': auth.username,
+                    'admin': user['admin'],
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
                 }, app.config['SECRET_KEY'])
-                return make_response(jsonify({'token': token, "user_id": user['user_id']}), 200)
+                return make_response(jsonify({'token': token, "user_id": user['user_id'],
+                                              "is_admin": user['admin']}), 200)
 
             # Otherwise returns an error
             else:
@@ -321,6 +342,33 @@ def fetch_all_parts():
         return make_response(jsonify({'parts': parts_list}), 200)
     else:
         return make_response(jsonify({'message': 'No Parts Could be found'}), 404)
+
+
+"""
+    ADMIN ROUTES
+"""
+
+
+@app.route('/api/v1.0/admin/app-data', methods=['GET'])
+@jwt_required
+@admin_required
+def get_app_data():
+    app_data = fetch_app_info(db=database, user_collection=users_collection, build_collection=builds_collection)
+    if app_data:
+        return make_response(jsonify({'AppInfo': app_data}), 200)
+    else:
+        return make_response(jsonify({'message': 'No data found'}), 404)
+
+
+@app.route('/api/v1.0/admin/fetch-all-users', methods=['GET'])
+@jwt_required
+@admin_required
+def get_all_users_data():
+    user_info = fetch_all_users(collection=users_collection)
+    if user_info:
+        return make_response(jsonify({'users': user_info}), 200)
+    else:
+        return make_response(jsonify({'message': 'No user info could be found'}), 404)
 
 
 if __name__ == "__main__":
