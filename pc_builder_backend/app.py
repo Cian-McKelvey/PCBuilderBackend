@@ -88,7 +88,8 @@ LOGIN AND LOGOUT ROUTES
 def login():
     auth = request.authorization
     if auth:
-        user = users_collection.find_one({'username': auth.username})
+        username = str(auth.username)
+        user = users_collection.find_one({'username': username})
         if user is not None:
 
             # Checks for a valid password, and if so returns token
@@ -131,10 +132,15 @@ def new_user():
     if not is_unique_username:
         return make_response(jsonify({"message": "SIGNUP FAILED, that username is already in use"}), 404)
 
+    firstname = str(request.form["first_name"])
+    lastname = str(request.form["last_name"])
+    username = str(request.form["username"])
+    password = str(request.form["password"])
+
     try:
-        add_new_user(user_collection=users_collection, first_name=request.form["first_name"],
-                     last_name=request.form["last_name"], username=request.form["username"],
-                     provided_password=request.form["password"])
+        add_new_user(user_collection=users_collection, first_name=firstname,
+                     last_name=lastname, username=username,
+                     provided_password=password)
         return make_response(jsonify({"message": "New user and password added successfully",
                                       "username": request.form["username"]}), 201)
 
