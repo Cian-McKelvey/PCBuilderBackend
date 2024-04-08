@@ -33,9 +33,9 @@ def add_new_user(user_collection: Collection, first_name: str, last_name: str,
 
 # Deletes a user by user_id - Should also delete all their builds
 def delete_existing_user(builds_collection: Collection, builds_index_collection: Collection,
-                         users_collection: Collection, user_id: str) -> bool:
+                         users_collection: Collection, user_id: str, username: str) -> bool:
     try:
-        result = users_collection.delete_one({'user_id': user_id})
+        result = users_collection.delete_one({'user_id': user_id, 'username': username})
         print(f"Deleted: {result}")
 
         # Check if a document was deleted

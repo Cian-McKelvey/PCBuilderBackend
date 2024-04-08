@@ -1,23 +1,25 @@
 import datetime
-import os
 from functools import wraps
 
 import bcrypt
 import jwt
 from flask import Flask, request, make_response, jsonify, render_template
 from flask_cors import CORS
+from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
 from build_database_methods import write_new_build, delete_build, edit_build, fetch_user_builds, update_build
 from user_database_methods import (add_new_user, delete_existing_user,
                                    unique_username_check, update_user_password)
-from admin_database_methods import fetch_app_info, fetch_all_users
+from admin_database_methods import fetch_app_info, fetch_all_users, admin_delete_user_account
 from excel_methods.excel_helper_methods import generate_build_from_excel, read_excel_data
 from constants import *
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
+# csrf = CSRFProtect(app)  # Provide protection against XSS
 
 # This config might help at a later point, if the code does not work for any reason come back and try use it
 cors_config = {
@@ -75,7 +77,7 @@ def admin_required(func):
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
-            return jsonify({'message': 'Token is missing'}, 401)
+            return make_response(jsonify({'message': 'Token is missing'}, 401))
 
         data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         if data['admin']:
@@ -133,7 +135,7 @@ def login():
 
 
 @app.route('/api/v1.0/logout', methods=['GET'])
-@jwt_required
+# @jwt_required
 def logout():
     # Gets the token, and writes it to a database of blacklisted tokens
     token = request.headers['x-access-token']
@@ -173,10 +175,21 @@ def new_user():
 @app.route('/api/v1.0/users/<string:id>/delete', methods=['DELETE'])
 @jwt_required
 def delete_user(id):
+    token = None
+    if 'x-access-token' in request.headers:
+        token = request.headers['x-access-token']
+    if not token:
+        return make_response(jsonify({'message': 'Token is missing'}, 401))
+
+    data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+
+    # Requires that the person deleting the account is logged into the account
+    username = data['user']
     delete_result = delete_existing_user(builds_collection=builds_collection,
                                          builds_index_collection=build_index_collection,
                                          users_collection=users_collection,
-                                         user_id=id)
+                                         user_id=id,
+                                         username=username)
 
     if delete_result:
         return make_response(jsonify({}), 204)
@@ -187,7 +200,6 @@ def delete_user(id):
 @app.route('/api/v1.0/users/edit/password', methods=['PUT'])
 @jwt_required
 def edit_user_password():
-
     non_valid_username = unique_username_check(user_collection=users_collection, username=request.form["username"])
     if non_valid_username:
         return make_response(jsonify({"message": "Invalid username"}), 400)
@@ -221,7 +233,6 @@ PC BUILD ROUTES
 @app.route('/api/v1.0/builds/new', methods=['POST'])
 @jwt_required
 def new_pc_build():
-
     user_id = None
     if 'x-user-id' in request.headers:
         user_id = str(request.headers['x-user-id'])  # Makes sure the id is a string
@@ -273,7 +284,6 @@ def delete_pc_build(build_id):
 @app.route('/api/v1.0/builds/<string:build_id>/edit', methods=['PUT'])
 @jwt_required
 def edit_pc_build(build_id):
-
     data = request.json
 
     part_type = data['part_type']
@@ -297,7 +307,6 @@ def edit_pc_build(build_id):
 @app.route('/api/v1.0/builds/<string:build_id>/replace', methods=['PUT'])
 @jwt_required
 def replace_pc_build(build_id):
-
     data = request.json
 
     try:
@@ -316,7 +325,7 @@ def replace_pc_build(build_id):
 def get_all_builds():
     user_id = request.headers.get('x-user-id')
     if not user_id:
-        return jsonify({'message': 'user id not provided'}), 400
+        return make_response(jsonify({'message': 'user id not provided'}), 400)
 
     try:
         user_created_builds = fetch_user_builds(builds_collection=builds_collection,
@@ -369,6 +378,24 @@ def get_all_users_data():
         return make_response(jsonify({'users': user_info}), 200)
     else:
         return make_response(jsonify({'message': 'No user info could be found'}), 404)
+
+
+@app.route('/api/v1.0/admin/delete-user/<string:id>', methods=['DELETE'])
+@jwt_required
+@admin_required
+def admin_delete_user(id):
+    try:
+        success = admin_delete_user_account(builds_collection=builds_collection,
+                                            builds_index_collection=build_index_collection,
+                                            users_collection=users_collection,
+                                            user_id=id)
+
+        if success:
+            return make_response(jsonify({'message': f"User account {id} deleted"}), 204)
+
+    except PyMongoError as e:
+        return make_response(jsonify({'message': str(e)}), 404)
+
 
 
 if __name__ == "__main__":
