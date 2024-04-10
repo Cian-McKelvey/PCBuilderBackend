@@ -21,14 +21,16 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
 # csrf = CSRFProtect(app)  # Provide protection against XSS
 
-# This config might help at a later point, if the code does not work for any reason come back and try use it
 cors_config = {
     "origins": ["http://localhost:4200"],
     "methods": ["GET", "POST", "PUT", "DELETE"],
-    "allow_headers": ["Content-Type", "Authorization"],
-    "supports_credentials": True,
+    "allow_headers": ["Content-Type", "Authorization", "x-access-token", "x-user-id"],
+    "supports_credentials": False,
 }
-CORS(app)
+CORS(app, resources={r"/*": {"origins": cors_config["origins"]}}, **cors_config)
+
+
+# CORS(app)
 
 client = MongoClient(MONGO_CONNECTION_URL)
 database = client[STAGING_DATABASE]
@@ -395,7 +397,6 @@ def admin_delete_user(id):
 
     except PyMongoError as e:
         return make_response(jsonify({'message': str(e)}), 404)
-
 
 
 if __name__ == "__main__":
