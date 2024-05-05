@@ -10,6 +10,14 @@ user_logger = create_logger('Users.log')
 
 
 def add_new_user(user_collection: Collection, username: str, provided_password: str) -> bool:
+    """
+    Adds a new user to the user collection.
+
+    :param user_collection: Collection containing user data.
+    :param username: Username of the new user.
+    :param provided_password: Password provided by the user (plaintext).
+    :return: True if the user is added successfully, False otherwise.
+    """
     # Hash the provided password
     hashed_password = bcrypt.hashpw(provided_password.encode('utf-8'), bcrypt.gensalt())
 
@@ -29,6 +37,16 @@ def add_new_user(user_collection: Collection, username: str, provided_password: 
 # Deletes a user by user_id - Should also delete all their builds
 def delete_existing_user(builds_collection: Collection, builds_index_collection: Collection,
                          users_collection: Collection, user_id: str, username: str) -> bool:
+    """
+    Deletes an existing user account and associated builds.
+
+    :param builds_collection: Collection containing build data.
+    :param builds_index_collection: Collection containing index of builds.
+    :param users_collection: Collection containing user data.
+    :param user_id: ID of the user account to delete.
+    :param username: Username of the user account to delete.
+    :return: True if account and associated builds are deleted successfully, False otherwise.
+    """
     try:
         result = users_collection.delete_one({'user_id': user_id, 'username': username})
         print(f"Deleted: {result}")
@@ -62,6 +80,15 @@ def delete_existing_user(builds_collection: Collection, builds_index_collection:
 
 
 def update_user_password(user_collection: Collection, username: str, old_password: str, new_password: str) -> bool:
+    """
+    Updates the password of an existing user.
+
+    :param user_collection: Collection containing user data.
+    :param username: Username of the user to update.
+    :param old_password: Old password of the user (plaintext).
+    :param new_password: New password to set for the user (plaintext).
+    :return: True if password is updated successfully, False otherwise.
+    """
     user = user_collection.find_one({"username": username})
 
     if bcrypt.checkpw(old_password.encode('utf-8'), user['password']):
@@ -85,6 +112,13 @@ def update_user_password(user_collection: Collection, username: str, old_passwor
 
 # Returns true if the username hasn't been used already, false otherwise
 def unique_username_check(user_collection: Collection, username: str) -> bool:
+    """
+    Checks if a username is unique (not already used).
+
+    :param user_collection: Collection containing user data.
+    :param username: Username to check for uniqueness.
+    :return: True if the username is unique, False otherwise.
+    """
     # Check if the username already exists
     existing_user = user_collection.find_one({"username": username})
 

@@ -12,6 +12,14 @@ from pc_builder_backend.constants import MONGO_CONNECTION_URL, STAGING_DATABASE,
 
 
 def fetch_app_info(db: Database, user_collection: Collection, build_collection: Collection) -> Union[dict, None]:
+    """
+    Fetches application information including database statistics and user/build counts.
+
+    :param db: MongoDB database instance.
+    :param user_collection: Collection containing user data.
+    :param build_collection: Collection containing build data.
+    :return: Dictionary containing application information or None if an error occurs.
+    """
     try:
         # Get the stats of the database
         stats = db.command("dbstats")
@@ -41,6 +49,12 @@ def fetch_app_info(db: Database, user_collection: Collection, build_collection: 
 
 
 def fetch_all_users(collection: Collection) -> Union[list, None]:
+    """
+    Fetches information about all users from the given collection.
+
+    :param collection: Collection containing user data.
+    :return: List of user information dictionaries or None if an error occurs.
+    """
     try:
         # Fetch the username and registration_date of every user
         user_data = []
@@ -62,7 +76,16 @@ def fetch_all_users(collection: Collection) -> Union[list, None]:
 
 
 def admin_delete_user_account(builds_collection: Collection, builds_index_collection: Collection,
-                      users_collection: Collection, user_id: str) -> bool:
+                              users_collection: Collection, user_id: str) -> bool:
+    """
+    Admin function to delete a user account and associated builds.
+
+    :param builds_collection: Collection containing build data.
+    :param builds_index_collection: Collection containing index of builds.
+    :param users_collection: Collection containing user data.
+    :param user_id: ID of the user account to delete.
+    :return: True if account and associated builds are deleted successfully, False otherwise.
+    """
     try:
         result = users_collection.delete_one({'user_id': user_id})
         print(f"Deleted: {result}")

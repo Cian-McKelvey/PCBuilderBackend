@@ -12,6 +12,12 @@ from constants import RELATIONAL_TABLE_NAME
 class User:
 
     def __init__(self, username, password):
+        """
+        Initialises a User object.
+
+        :param username: User's username.
+        :param password: User's password (will be hashed before creating an instance).
+        """
         self.user_id = str(uuid.uuid4())  # Generates a user id on initialisation
         self.username = username
         self.password = password  # Password will be hashed before creating an instance
@@ -19,6 +25,11 @@ class User:
         self.registration_date = datetime.datetime.now()  # Registers when the user created an account
 
     def to_dict(self):
+        """
+        Converts User object to a dictionary.
+
+        :return: Dictionary representation of the User object.
+        """
         return {
             "user_id": self.user_id,
             "username": self.username,
@@ -28,6 +39,11 @@ class User:
         }
 
     def __repr__(self):
+        """
+        Returns a string representation of the User object.
+
+        :return: String representation of the User object.
+        """
         return f"User: username={self.username} : user ID={self.user_id}"
 
 

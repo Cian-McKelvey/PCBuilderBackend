@@ -5,6 +5,9 @@ import uuid
 class PCBuild:
 
     def __init__(self):
+        """
+        Initializes a Build object with default values and a unique build ID.
+        """
         # Initialise None as parts defaults bar the build_id
         self.cpu = None
         self.gpu = None
@@ -79,6 +82,11 @@ class PCBuild:
         ])
 
     def __repr__(self):
+        """
+        Returns a string representation of the PC Build information.
+
+        :return: String representation of the PC Build.
+        """
         representation = (
             f"PC Build Information : {self.build_id}\n"
             f"CPU: {self.cpu} - Price: £{self.cpu_price}\n"
@@ -95,6 +103,11 @@ class PCBuild:
         return representation
 
     def display_info(self) -> None:
+        """
+        Displays PC Build information.
+
+        :return: None
+        """
         print(f"PC Build Information : {self.build_id}")
         print(f"CPU: {self.cpu} - Price: £{self.cpu_price}")
         print(f"GPU: {self.gpu} - Price: £{self.gpu_price}")
@@ -105,8 +118,12 @@ class PCBuild:
         print(f"Case: {self.case} - Price: £{self.case_price}\n")
         f"Overall Price: £{self.overall_price:.2f}\n"  # Rounds to 2 decimal places
 
-    # This might need to be uppercase
     def is_valid(self):
+        """
+        Checks if the PC Build is valid (all components are present and prices are positive).
+
+        :return: True if the PC Build is valid, False otherwise.
+        """
         attributes = ['cpu', 'gpu', 'ram', 'storage', 'motherboard', 'power_supply', 'case']
         prices = ['cpu_price', 'gpu_price', 'ram_price', 'storage_price', 'motherboard_price', 'power_supply_price', 'case_price']
 
@@ -118,13 +135,13 @@ class PCBuild:
 
         return True
 
-
-    """ 
-    Allows the creation of a JSON object of the complete build
-    Stores each component of the pc as a dictionary containing the part and its price
-    Stores the overall price as its own singular non-dict value
-    """
     def to_dict(self, user_id: str) -> dict:
+        """
+        Converts the PC Build object to a dictionary.
+
+        :param user_id: ID of the user associated with the build.
+        :return: Dictionary representation of the PC Build object.
+        """
         return {
             "CPU": {"value": self.cpu, "price": self.cpu_price},
             "GPU": {"value": self.gpu, "price": self.gpu_price},

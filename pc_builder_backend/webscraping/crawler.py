@@ -2,8 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
+"""
+These methods aren't used at the moment to keep the scraper functioning correctly and legally, 
+in the event they are needed they are here
+"""
+
 
 def fetch_links(url) -> list:
+    """
+    Fetches all links from the given URL and returns absolute URLs.
+
+    :param url: URL to fetch links from.
+    :return: List of absolute URLs.
+    """
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     link_tags = soup.find_all('a', href=True)
@@ -12,6 +23,12 @@ def fetch_links(url) -> list:
 
 
 def fetch_links_with_page_mentioned_old(url) -> list:
+    """
+    Fetches links from the given URL that mention a page number in their href attribute.
+
+    :param url: URL to fetch links from.
+    :return: List of links mentioning a page number.
+    """
     links = set()
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -22,6 +39,12 @@ def fetch_links_with_page_mentioned_old(url) -> list:
 
 
 def fetch_links_with_page_mentioned(url) -> list:
+    """
+    Fetches links from the given URL that mention a page number in their href attribute.
+
+    :param url: URL to fetch links from.
+    :return: List of links mentioning a page number.
+    """
     links = set()  # Use a set to automatically remove duplicates
     try:
         response = requests.get(url)

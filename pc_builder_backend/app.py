@@ -93,11 +93,6 @@ def home_page():
     return render_template('home.html')
 
 
-@app.route("/admin")
-def admin_page():
-    return "Admin Page"
-
-
 """
 LOGIN AND LOGOUT ROUTES
 """

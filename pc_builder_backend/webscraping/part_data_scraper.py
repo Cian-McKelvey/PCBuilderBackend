@@ -5,6 +5,12 @@ import os
 
 
 def scrape_part_data(html_content):
+    """
+    Extracts part information from HTML content and returns a dictionary.
+
+    :param html_content: HTML content to be scraped.
+    :return: Dictionary containing part names as keys and their prices as values.
+    """
     soup = BeautifulSoup(html_content, 'html.parser')
     products = soup.find_all('div', class_='card-horizontal')
 
@@ -22,6 +28,12 @@ def scrape_part_data(html_content):
 
 
 def fetch_html_content(url):
+    """
+    Fetches HTML content from the given URL.
+
+    :param url: URL to fetch HTML content from.
+    :return: HTML content if successful, None otherwise.
+    """
     response = requests.get(url)
     if response.status_code == 200:
         return response.text
@@ -31,6 +43,8 @@ def fetch_html_content(url):
 
 
 def main():
+
+    # Can add more urls here, like pages 1, 2, 3, ... , to create a more diverse parts list
     cpu_url = "https://pcparts.uk/browse/cpus"
     gpu_url = "https://pcparts.uk/browse/graphics-cards"
     ram_url = "https://pcparts.uk/browse/memory"
@@ -90,7 +104,6 @@ def main():
                 print("NO CPU DATA FOUND")
         else:
             print("URL ISN'T VALID + ", url)
-
 
     for url in ram_url_list:
         html_data = fetch_html_content(url)

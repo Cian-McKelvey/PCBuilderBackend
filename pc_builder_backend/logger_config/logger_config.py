@@ -3,6 +3,12 @@ import os
 
 
 def create_logger(filename: str):
+    """
+    Creates a logger instance with specified filename and sets up logging handlers.
+
+    :param filename: Name of the log file.
+    :return: Logger instance.
+    """
     # Get the absolute path to the project root
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
