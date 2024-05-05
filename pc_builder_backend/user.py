@@ -10,10 +10,9 @@ from constants import RELATIONAL_TABLE_NAME
 
 
 class User:
-    def __init__(self, first_name, last_name, username, password):
+
+    def __init__(self, username, password):
         self.user_id = str(uuid.uuid4())  # Generates a user id on initialisation
-        self.firstname = first_name
-        self.surname = last_name
         self.username = username
         self.password = password  # Password will be hashed before creating an instance
         self.admin = False
@@ -22,8 +21,6 @@ class User:
     def to_dict(self):
         return {
             "user_id": self.user_id,
-            "first_name": self.firstname,
-            "last_name": self.surname,
             "username": self.username,
             "password": self.password,
             "admin": self.admin,
@@ -31,7 +28,7 @@ class User:
         }
 
     def __repr__(self):
-        return f"User: Name={self.firstname} {self.surname}  username={self.username}"
+        return f"User: username={self.username} : user ID={self.user_id}"
 
 
 """

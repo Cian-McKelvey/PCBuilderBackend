@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from pc_builder_backend.excel_methods.excel_helper_methods import create_data_frame, combine_dataframes, write_excel_data
-import pandas as pd
 import os
 
 
@@ -44,43 +43,27 @@ def main():
     # Fetch all the urls for the parts
     cpu_storage_dict = {}
     cpu_url_list = [cpu_url]
-    # fetched_cpu_urls = fetch_links_with_page_mentioned_old(cpu_url)
-    # cpu_url_list.append(fetched_cpu_urls[1:])
 
     gpu_storage_dict = {}
     gpu_url_list = [gpu_url]
-    # fetched_gpu_urls = fetch_links_with_page_mentioned(gpu_url)
-    # gpu_url_list.append(fetched_gpu_urls[2:])
 
     ram_storage_dict = {}
     ram_url_list = [ram_url]
-    # fetched_ram_urls = fetch_links_with_page_mentioned(ram_url)
-    # ram_url_list.append(fetched_ram_urls[2:])
 
     ssd_storage_dict = {}
     ssd_url_list = [ssd_url]
-    # fetched_ssd_urls = fetch_links_with_page_mentioned(ssd_url)
-    # ssd_url_list.append(fetched_ssd_urls[2:])
 
     hdd_storage_dict = {}
     hdd_url_list = [hdd_url]
-    # fetched_hdd_urls = fetch_links_with_page_mentioned(hdd_url)
-    # hdd_url_list.append(fetched_hdd_urls[2:])
 
     motherboard_storage_dict = {}
     motherboard_url_list = [motherboard_url]
-    # fetched_motherboard_urls = fetch_links_with_page_mentioned(motherboard_url)
-    # motherboard_url_list.append(fetched_motherboard_urls[2:])
 
     power_supply_storage_dict = {}
     power_supply_url_list = [power_supply_url]
-    # fetched_power_supply_urls = fetch_links_with_page_mentioned(power_supply_url)
-    # power_supply_url_list.append(fetched_power_supply_urls[2:])
 
     case_storage_dict = {}
     case_url_list = [case_url]
-    # fetched_case_urls = fetch_links_with_page_mentioned(case_url)
-    # case_url_list.append(fetched_case_urls[2:])
 
     for url in cpu_url_list:
         html_data = fetch_html_content(url)

@@ -29,7 +29,8 @@ def write_excel_data(filepath: str, dataframe: pd.DataFrame) -> None:
         dataframe.to_excel(writer, index=False)
 
 
-def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_price: Union[int, float]) -> pd.DataFrame:
+def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_price: Union[int, float]) \
+        -> Union[pd.DataFrame, None]:
     """
     Fetches valid parts from a DataFrame based on the specified part name and target price range.
 
@@ -54,6 +55,7 @@ def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_pric
     trimmed_dataframe = parts_dataframe.query(query_string)
     if len(trimmed_dataframe) == 0:
         print("No items found")
+        return None
     return trimmed_dataframe
 
 
@@ -169,6 +171,8 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
                                      target_price=psu_price)
 
     valid_case_df = fetch_valid_parts(part_name="Case", parts_dataframe=complete_parts_df, target_price=case_price)
+
+    # Add a check here to make sure all dataframes are valid and fail if not
 
     # Gets the information of each component
     cpu_name, cpu_price = get_component_info(valid_cpu_df)

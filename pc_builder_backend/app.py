@@ -5,8 +5,6 @@ import bcrypt
 import jwt
 from flask import Flask, request, make_response, jsonify, render_template
 from flask_cors import CORS
-from flask_wtf import CSRFProtect
-from flask_wtf.csrf import generate_csrf
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
@@ -33,7 +31,7 @@ CORS(app, resources={r"/*": {"origins": cors_config["origins"]}}, **cors_config)
 # CORS(app)
 
 client = MongoClient(MONGO_CONNECTION_URL)
-database = client[STAGING_DATABASE]
+database = client[PRODUCTION_DATABASE]
 builds_collection = database[BUILDS_COLLECTION]
 build_index_collection = database[BUILDS_INDEX_COLLECTION]
 users_collection = database[USER_COLLECTION]
@@ -157,15 +155,12 @@ def new_user():
     if not is_unique_username:
         return make_response(jsonify({"message": "SIGNUP FAILED, that username is already in use"}), 404)
 
-    firstname = str(request.form["first_name"])
-    lastname = str(request.form["last_name"])
     username = str(request.form["username"])
     password = str(request.form["password"])
 
     try:
-        add_new_user(user_collection=users_collection, first_name=firstname,
-                     last_name=lastname, username=username,
-                     provided_password=password)
+        # Remove first and lastname from the args
+        add_new_user(user_collection=users_collection, username=username, provided_password=password)
         return make_response(jsonify({"message": "New user and password added successfully",
                                       "username": request.form["username"]}), 201)
 

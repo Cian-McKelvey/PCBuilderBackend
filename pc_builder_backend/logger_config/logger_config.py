@@ -8,19 +8,23 @@ def create_logger(filename: str):
 
     log_file_path = os.path.join(project_root, 'logs', filename)
 
-    logger = logging.getLogger(__name__)
+    # Create a new logger instance with a unique name
+    logger_instance = logging.getLogger(f"logger_{filename}")
 
     # Sets the lowest level of logger to the debug level (lowest)
-    logger.setLevel(logging.DEBUG)  # This will need to be changed in the real app
+    logger_instance.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
     # Create a console handler and set the formatter
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    # Sets the logging to write to app.log too
-    file_handler = logging.FileHandler(filename=log_file_path)
-    file_handler.setFormatter(formatter)  # Sets the format
-    # Add the handlers to the logger
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
 
-    return logger
+    # Create a file handler and set the formatter
+    file_handler = logging.FileHandler(filename=log_file_path)
+    file_handler.setFormatter(formatter)
+
+    # Add the handlers to the logger
+    logger_instance.addHandler(console_handler)
+    logger_instance.addHandler(file_handler)
+
+    return logger_instance
