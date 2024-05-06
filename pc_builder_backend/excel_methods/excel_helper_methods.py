@@ -22,11 +22,15 @@ def write_excel_data(filepath: str, dataframe: pd.DataFrame) -> None:
 
     :param filepath: File path of the Excel file.
     :param dataframe: DataFrame to be written to the Excel file.
+    :raises FileNotFoundError: If the specified file path does not exist or cannot be accessed.
     """
-    # Create an Excel writer object - write mode will clear the object first
-    with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
-        # Write the DataFrame to the Excel file
-        dataframe.to_excel(writer, index=False)
+    try:
+        # Create an Excel writer object - write mode will clear the object first
+        with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
+            # Write the DataFrame to the Excel file
+            dataframe.to_excel(writer, index=False)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Error accessing the file '{filepath}': {e}") from e
 
 
 def fetch_valid_parts(part_name: str, parts_dataframe: pd.DataFrame, target_price: Union[int, float]) \

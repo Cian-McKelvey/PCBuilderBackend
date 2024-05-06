@@ -11,18 +11,26 @@ def scrape_part_data(html_content):
     :param html_content: HTML content to be scraped.
     :return: Dictionary containing part names as keys and their prices as values.
     """
-    soup = BeautifulSoup(html_content, 'html.parser')
-    products = soup.find_all('div', class_='card-horizontal')
+    try:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        products = soup.find_all('div', class_='card-horizontal')
+    except Exception as e:
+        print(f"Error parsing HTML content: {e}")
+        return {}
 
     part_info = {}
     for product in products:
-        name = product.find('div', class_='title').text.strip()
-        price_elem = product.find('div', class_='price in-stock')
-        if price_elem:
-            price = price_elem.text.strip()
-        else:
-            price = 'Price not available'
-        part_info[name] = price
+        try:
+            name = product.find('div', class_='title').text.strip()
+            price_elem = product.find('div', class_='price in-stock')
+            if price_elem:
+                price = price_elem.text.strip()
+            else:
+                price = 'Price not available'
+            part_info[name] = price
+        except (AttributeError, TypeError) as e:
+            print(f"Error extracting part information: {e}")
+            continue
 
     return part_info
 
@@ -32,14 +40,12 @@ def fetch_html_content(url):
     Fetches HTML content from the given URL.
 
     :param url: URL to fetch HTML content from.
-    :return: HTML content if successful, None otherwise.
+    :return: HTML content if successful.
+    :raises Exception: If the request fails.
     """
     response = requests.get(url)
-    if response.status_code == 200:
-        return response.text
-    else:
-        print("Failed to fetch HTML content from the URL.")
-        return None
+    response.raise_for_status()  # Raise an exception if the request was unsuccessful
+    return response.text
 
 
 def main():
@@ -79,152 +85,118 @@ def main():
     case_storage_dict = {}
     case_url_list = [case_url]
 
-    for url in cpu_url_list:
-        html_data = fetch_html_content(url)
+    try:
+        for url in cpu_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            cpu_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                cpu_data = scrape_part_data(html_content=html_data)
 
-            if cpu_data:
-                cpu_storage_dict.update(cpu_data)
+                if cpu_data:
+                    cpu_storage_dict.update(cpu_data)
+                else:
+                    print("NO CPU DATA FOUND")
             else:
-                print("NO CPU DATA FOUND")
-        else:
-            print("URL ISN'T VALID + ", url)
+                print("URL ISN'T VALID + ", url)
 
-    for url in gpu_url_list:
-        html_data = fetch_html_content(url)
+        for url in gpu_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            gpu_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                gpu_data = scrape_part_data(html_content=html_data)
 
-            if gpu_data:
-                gpu_storage_dict.update(gpu_data)
+                if gpu_data:
+                    gpu_storage_dict.update(gpu_data)
+                else:
+                    print("NO CPU DATA FOUND")
             else:
-                print("NO CPU DATA FOUND")
-        else:
-            print("URL ISN'T VALID + ", url)
+                print("URL ISN'T VALID + ", url)
 
-    for url in ram_url_list:
-        html_data = fetch_html_content(url)
+        for url in ram_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            ram_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                ram_data = scrape_part_data(html_content=html_data)
 
-            if ram_data:
-                ram_storage_dict.update(ram_data)
+                if ram_data:
+                    ram_storage_dict.update(ram_data)
+                else:
+                    print("NO CPU DATA FOUND")
             else:
-                print("NO CPU DATA FOUND")
-        else:
-            print("URL ISN'T VALID + ", url)
+                print("URL ISN'T VALID + ", url)
 
-    # Loop for scraping data from HDD URLs
-    for url in hdd_url_list:
-        html_data = fetch_html_content(url)
+        # Loop for scraping data from HDD URLs
+        for url in hdd_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            hdd_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                hdd_data = scrape_part_data(html_content=html_data)
 
-            if hdd_data:
-                hdd_storage_dict.update(hdd_data)
+                if hdd_data:
+                    hdd_storage_dict.update(hdd_data)
+                else:
+                    print("NO HDD DATA FOUND")
             else:
-                print("NO HDD DATA FOUND")
-        else:
-            print("URL ISN'T VALID: ", url)
+                print("URL ISN'T VALID: ", url)
 
-    # Loop for scraping data from SSD URLs
-    for url in ssd_url_list:
-        html_data = fetch_html_content(url)
+        # Loop for scraping data from SSD URLs
+        for url in ssd_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            ssd_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                ssd_data = scrape_part_data(html_content=html_data)
 
-            if ssd_data:
-                ssd_storage_dict.update(ssd_data)
+                if ssd_data:
+                    ssd_storage_dict.update(ssd_data)
+                else:
+                    print("NO SSD DATA FOUND")
             else:
-                print("NO SSD DATA FOUND")
-        else:
-            print("URL ISN'T VALID: ", url)
+                print("URL ISN'T VALID: ", url)
 
-    # Loop for scraping data from Motherboard URLs
-    for url in motherboard_url_list:
-        html_data = fetch_html_content(url)
+        # Loop for scraping data from Motherboard URLs
+        for url in motherboard_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            motherboard_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                motherboard_data = scrape_part_data(html_content=html_data)
 
-            if motherboard_data:
-                motherboard_storage_dict.update(motherboard_data)
+                if motherboard_data:
+                    motherboard_storage_dict.update(motherboard_data)
+                else:
+                    print("NO MOTHERBOARD DATA FOUND")
             else:
-                print("NO MOTHERBOARD DATA FOUND")
-        else:
-            print("URL ISN'T VALID: ", url)
+                print("URL ISN'T VALID: ", url)
 
-    # Loop for scraping data from Power Supply URLs
-    for url in power_supply_url_list:
-        html_data = fetch_html_content(url)
+        # Loop for scraping data from Power Supply URLs
+        for url in power_supply_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            power_supply_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                power_supply_data = scrape_part_data(html_content=html_data)
 
-            if power_supply_data:
-                power_supply_storage_dict.update(power_supply_data)
+                if power_supply_data:
+                    power_supply_storage_dict.update(power_supply_data)
+                else:
+                    print("NO POWER SUPPLY DATA FOUND")
             else:
-                print("NO POWER SUPPLY DATA FOUND")
-        else:
-            print("URL ISN'T VALID: ", url)
+                print("URL ISN'T VALID: ", url)
 
-    # Loop for scraping data from Case URLs
-    for url in case_url_list:
-        html_data = fetch_html_content(url)
+        # Loop for scraping data from Case URLs
+        for url in case_url_list:
+            html_data = fetch_html_content(url)
 
-        if html_data:
-            case_data = scrape_part_data(html_content=html_data)
+            if html_data:
+                case_data = scrape_part_data(html_content=html_data)
 
-            if case_data:
-                case_storage_dict.update(case_data)
+                if case_data:
+                    case_storage_dict.update(case_data)
+                else:
+                    print("NO CASE DATA FOUND")
             else:
-                print("NO CASE DATA FOUND")
-        else:
-            print("URL ISN'T VALID: ", url)
+                print("URL ISN'T VALID: ", url)
 
-    # Printing to test
-    print(len(cpu_storage_dict))
-    print(cpu_storage_dict)
-    print("\n")
-
-    print(len(gpu_storage_dict))
-    print(gpu_storage_dict)
-    print("\n")
-
-    print(len(ram_storage_dict))
-    print(ram_storage_dict)
-    print("\n")
-
-    print("HDD Data:")
-    print(len(hdd_storage_dict))
-    print(hdd_storage_dict)
-    print("\n")
-
-    print("SSD Data:")
-    print(len(ssd_storage_dict))
-    print(ssd_storage_dict)
-    print("\n")
-
-    print("Motherboard Data:")
-    print(len(motherboard_storage_dict))
-    print(motherboard_storage_dict)
-    print("\n")
-
-    print("Power Supply Data:")
-    print(len(power_supply_storage_dict))
-    print(power_supply_storage_dict)
-    print("\n")
-
-    print("Case Data:")
-    print(len(case_storage_dict))
-    print(case_storage_dict)
-    print("\n")
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching HTML content: {e}")
 
     cpu_df = create_data_frame(part_type="CPU", part_dict=cpu_storage_dict)
 
