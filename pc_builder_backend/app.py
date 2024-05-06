@@ -40,7 +40,8 @@ blacklisted_tokens_collection = database[BLACKLIST_COLLECTION]
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.realpath(__file__))
 # Construct the path to the Excel file relative to the project root
-excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components.xlsx'))
+# excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components.xlsx'))
+excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components_new.xlsx'))
 
 complete_parts_df = read_excel_data(excel_file)
 
