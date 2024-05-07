@@ -26,10 +26,9 @@ cors_config = {
     "supports_credentials": False,
 }
 CORS(app, resources={r"/*": {"origins": cors_config["origins"]}}, **cors_config)
-
-
 # CORS(app)
 
+# Connection information to MongoDB
 client = MongoClient(MONGO_CONNECTION_URL)
 database = client[PRODUCTION_DATABASE]
 builds_collection = database[BUILDS_COLLECTION]
@@ -50,17 +49,20 @@ complete_parts_df = read_excel_data(excel_file)
 def jwt_required(func):
     @wraps(func)
     def jwt_required_wrapper(*args, **kwargs):
+        # Checks for valid token
         token = None
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
             return make_response(jsonify({'message': 'Token is missing'}, 401))
 
+        # Decrypts and checks the token
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         except Exception as e:
             return make_response(jsonify({'message': f'Error decoding token: {str(e)}'}, 401))
 
+        # Checks the token hasn't already been blacklisted
         blacklist_token = blacklisted_tokens_collection.find_one({"token": token})
         if blacklist_token is not None:
             return make_response(jsonify({"message": "Token is blacklisted, can no longer be used"}), 401)
@@ -81,6 +83,7 @@ def admin_required(func):
             return make_response(jsonify({'message': 'Token is missing'}, 401))
 
         data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        # Checks for admin status embedded in token
         if data['admin']:
             return func(*args, **kwargs)
         else:
@@ -99,10 +102,9 @@ LOGIN AND LOGOUT ROUTES
 """
 
 
-# Needs tweaked for this project but is super close, make sure user passwords are encrypted first though
-# Will also need an admin check. Can create a user method in the class and run it as a super quick check
 @app.route('/api/v1.0/login', methods=['GET'])
 def login():
+    # Fetches and checks authorisation information
     auth = request.authorization
     if auth:
         username = str(auth.username)
@@ -146,7 +148,7 @@ def logout():
 
 @app.route('/api/v1.0/users/new', methods=['POST'])
 def new_user():
-    # Checks that the username isn't already stored with an account
+    # Checks that the username isn't already stored with an account, ensuring uniqueness of usernames
     is_unique_username = unique_username_check(users_collection, request.form["username"])
     if not is_unique_username:
         return make_response(jsonify({"message": "SIGNUP FAILED, that username is already in use"}), 404)
@@ -155,19 +157,23 @@ def new_user():
     password = str(request.form["password"])
 
     try:
-        # Remove first and lastname from the args
+        # Calls a method to create a new user in the database, returning a successful response
         add_new_user(user_collection=users_collection, username=username, provided_password=password)
         return make_response(jsonify({"message": "New user and password added successfully",
                                       "username": request.form["username"]}), 201)
 
+    # Returns a failure if exceptions occur
     except PyMongoError as e:
         print("Could not add new user")
-        return make_response(jsonify({"message": "New user could not be added"}), 400)
+        return make_response(jsonify({"message": f"New user could not be added: {e}"}), 400)
 
 
 @app.route('/api/v1.0/users/<string:id>/delete', methods=['DELETE'])
 @jwt_required
 def delete_user(id):
+    # Checks for a token that contains the username of the account,
+    # This is used to ensure that the person calling this endpoint is correct
+    # preventing people from calling the endpoint to delete others accounts
     token = None
     if 'x-access-token' in request.headers:
         token = request.headers['x-access-token']
@@ -193,7 +199,9 @@ def delete_user(id):
 @app.route('/api/v1.0/users/edit/password', methods=['PUT'])
 @jwt_required
 def edit_user_password():
+    # Checks for the existance of the user using the unique username method
     non_valid_username = unique_username_check(user_collection=users_collection, username=request.form["username"])
+    # If the method returns true, the account doesn't exist
     if non_valid_username:
         return make_response(jsonify({"message": "Invalid username"}), 400)
 
@@ -213,6 +221,7 @@ def edit_user_password():
         return make_response(jsonify({"message": f"Error with PyMongo - {e}"}), 500)
 
 
+# Currently doesn't have functionality
 @app.route('/api/v1.0/users/<string:id>/edit/username', methods=['PUT'])
 def edit_user_username(id):
     ...
@@ -232,14 +241,18 @@ def new_pc_build():
     if not user_id:
         return jsonify({'message': 'user id not provided'}, 400)
 
+    # Convert the price to an int and verify it is within budget
     new_build_price = int(request.json['price'])
-    if new_build_price > 2500:
+    if new_build_price > 2000:
         return make_response(jsonify({"message": "Price is too high to generate build"}), 400)
+    # Generates a new build object using params
     new_build = generate_build_from_excel(build_price=new_build_price, complete_parts_df=complete_parts_df)
 
+    # Checks for build validity
     if not new_build.is_valid():
         return make_response(jsonify({"message": "Error while generating new build"}), 400)
 
+    # Try to write this new build to the database, if possible return success message
     try:
         write_new_build(builds_collection=builds_collection,
                         builds_index_collection=build_index_collection,
@@ -253,27 +266,33 @@ def new_pc_build():
 @app.route('/api/v1.0/builds/<string:build_id>/delete', methods=['DELETE'])
 @jwt_required
 def delete_pc_build(build_id):
+    # Retrieve user ID from request headers
     user_id = None
     if 'x-user-id' in request.headers:
         user_id = str(request.headers['x-user-id'])
+    # Check if user ID is provided
     if not user_id:
         return jsonify({'message': 'user id not provided'}, 400)
 
     try:
+        # Attempt to delete the build
         success = delete_build(builds_collection=builds_collection,
                                builds_index_collection=build_index_collection,
                                build_id=build_id,
                                user_id=user_id)
+        # Handle deletion success or failure
         if success:
             return make_response(jsonify({"message": f"Successfully deleted build - {build_id}"}), 200)
         else:
             return make_response(jsonify({"message": f"Failed to delete build - {build_id}"}), 400)
 
     except PyMongoError as e:
+        # Handle PyMongo errors
         print(f"ERROR: PyMongo Error Flagged - {e}")
         return make_response(jsonify({"message": f"Error: {e}"}))
 
 
+# Currently not in use, replaces build components individually, deemed to be too taxing on resources
 @app.route('/api/v1.0/builds/<string:build_id>/edit', methods=['PUT'])
 @jwt_required
 def edit_pc_build(build_id):
@@ -301,33 +320,39 @@ def edit_pc_build(build_id):
 @jwt_required
 def replace_pc_build(build_id):
     data = request.json
-
     try:
+        # Attempt to update the build
         success = update_build(builds_collection=builds_collection, build_data=data)
+        # Handle update success or failure
         if success:
             return make_response(jsonify({"message": "Successfully updated build"}), 200)
         else:
             return make_response(jsonify({"message": f"Build: {build_id} could not be updated"}), 400)
 
     except PyMongoError as e:
+        # Handle PyMongo errors
         return make_response(jsonify({"message": f"Error: {e}"}), 400)
 
 
 @app.route('/api/v1.0/builds/fetch_all', methods=['GET'])
 @jwt_required
 def get_all_builds():
+    # Retrieve user ID from request headers
     user_id = request.headers.get('x-user-id')
+    # Check if user ID is provided
     if not user_id:
         return make_response(jsonify({'message': 'user id not provided'}), 400)
 
     try:
+        # Fetch all builds created by the user
         user_created_builds = fetch_user_builds(builds_collection=builds_collection,
                                                 builds_index_collection=build_index_collection,
                                                 user_id=user_id)
-
+        # Return JSON response with user's builds
         return jsonify({'builds': user_created_builds}), 200
 
     except PyMongoError as e:
+        # Handle PyMongo errors
         return jsonify({"message": f"Error: {e}"}), 500
 
 
@@ -336,12 +361,16 @@ def get_all_builds():
 @app.route('/api/v1.0/parts/fetch_all', methods=['GET'])
 def fetch_all_parts():
     try:
+        # Fetch all parts stored in Excel
         parts_list = complete_parts_df.values.tolist()
     except Exception as e:
+        # Handle any errors that may occur
         return make_response(jsonify({'message': f'Parts list could not be converted to list: {e}'}), 400)
 
+    # If a full list is found return it
     if len(parts_list) > 0:
         return make_response(jsonify({'parts': parts_list}), 200)
+    # Otherwise return a message denoting nothing could be found
     else:
         return make_response(jsonify({'message': 'No Parts Could be found'}), 404)
 
@@ -355,7 +384,9 @@ def fetch_all_parts():
 @jwt_required
 @admin_required
 def get_app_data():
+    # Fetches application data for admins
     app_data = fetch_app_info(db=database, user_collection=users_collection, build_collection=builds_collection)
+    # Returns data if present or an error message if not
     if app_data:
         return make_response(jsonify({'AppInfo': app_data}), 200)
     else:
@@ -366,7 +397,9 @@ def get_app_data():
 @jwt_required
 @admin_required
 def get_all_users_data():
+    # Fetches a list of users for the admin
     user_info = fetch_all_users(collection=users_collection)
+    # Returns users list if present or an error message if not
     if user_info:
         return make_response(jsonify({'users': user_info}), 200)
     else:
@@ -378,14 +411,16 @@ def get_all_users_data():
 @admin_required
 def admin_delete_user(id):
     try:
+        # Calls a different delete account method built specifically for admins
         success = admin_delete_user_account(builds_collection=builds_collection,
                                             builds_index_collection=build_index_collection,
                                             users_collection=users_collection,
                                             user_id=id)
-
+        # Returns a success message if successful
         if success:
             return make_response(jsonify({'message': f"User account {id} deleted"}), 204)
 
+    # Denotes the error if one occurs as a response
     except PyMongoError as e:
         return make_response(jsonify({'message': str(e)}), 404)
 
