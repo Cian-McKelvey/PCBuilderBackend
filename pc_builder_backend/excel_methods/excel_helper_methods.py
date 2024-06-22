@@ -176,8 +176,6 @@ def generate_build_from_excel(build_price: Union[int, float], complete_parts_df:
 
     valid_case_df = fetch_valid_parts(part_name="Case", parts_dataframe=complete_parts_df, target_price=case_price)
 
-    # Add a check here to make sure all dataframes are valid and fail if not
-
     # Gets the information of each component
     cpu_name, cpu_price = get_component_info(valid_cpu_df)
     gpu_name, gpu_price = get_component_info(valid_gpu_df)

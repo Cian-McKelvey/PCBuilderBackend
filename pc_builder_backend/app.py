@@ -39,8 +39,7 @@ blacklisted_tokens_collection = database[BLACKLIST_COLLECTION]
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.realpath(__file__))
 # Construct the path to the Excel file relative to the project root
-# excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components.xlsx'))
-excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components_new.xlsx'))
+excel_file = os.path.abspath(os.path.join(current_dir, '../parts/components.xlsx'))
 
 complete_parts_df = read_excel_data(excel_file)
 
@@ -133,7 +132,6 @@ def login():
 
 
 @app.route('/api/v1.0/logout', methods=['GET'])
-# @jwt_required
 def logout():
     # Gets the token, and writes it to a database of blacklisted tokens
     token = request.headers['x-access-token']

@@ -50,20 +50,9 @@ def fetch_html_content(url):
 
 def main():
 
-    # Can add more urls here, like pages 1, 2, 3, ... , to create a more diverse parts list
-    cpu_url = "https://pcparts.uk/browse/cpus"
-    gpu_url = "https://pcparts.uk/browse/graphics-cards"
-    ram_url = "https://pcparts.uk/browse/memory"
-    ssd_url = "https://pcparts.uk/browse/solid-state-drives"
-    hdd_url = "https://pcparts.uk/browse/hard-drives"
-    motherboard_url = "https://pcparts.uk/browse/motherboards"
-    power_supply_url = "https://pcparts.uk/browse/power-supplies"
-    case_url = "https://pcparts.uk/browse/cases"
-
     # Fetch all the urls for the parts
     # CPU
     cpu_storage_dict = {}
-    # cpu_url_list = []
     cpu_url_list = [
         "https://pcparts.uk/browse/cpus",
         "https://pcparts.uk/browse/cpus?page=2",
@@ -72,7 +61,6 @@ def main():
 
     # GPU
     gpu_storage_dict = {}
-    # gpu_url_list = [gpu_url]
     gpu_url_list = [
         "https://pcparts.uk/browse/graphics-cards",
         "https://pcparts.uk/browse/graphics-cards?page=2",
@@ -81,7 +69,6 @@ def main():
 
     # RAM
     ram_storage_dict = {}
-    # ram_url_list = [ram_url]
     ram_url_list = [
         "https://pcparts.uk/browse/memory",
         "https://pcparts.uk/browse/memory?page=2",
@@ -90,7 +77,6 @@ def main():
 
     # SSD
     ssd_storage_dict = {}
-    # ssd_url_list = [ssd_url]
     ssd_url_list = [
         "https://pcparts.uk/browse/solid-state-drives",
         "https://pcparts.uk/browse/solid-state-drives?page=2",
@@ -99,7 +85,6 @@ def main():
 
     # HDD
     hdd_storage_dict = {}
-    # hdd_url_list = [hdd_url]
     hdd_url_list = [
         "https://pcparts.uk/browse/hard-drives",
         "https://pcparts.uk/browse/hard-drives?page=2",
@@ -108,7 +93,6 @@ def main():
 
     # Motherboard
     motherboard_storage_dict = {}
-    # motherboard_url_list = [motherboard_url]
     motherboard_url_list = [
         "https://pcparts.uk/browse/motherboards",
         "https://pcparts.uk/browse/motherboards?page=2",
@@ -117,7 +101,6 @@ def main():
 
     # Power Supply
     power_supply_storage_dict = {}
-    # power_supply_url_list = [power_supply_url]
     power_supply_url_list = [
         "https://pcparts.uk/browse/power-supplies",
         "https://pcparts.uk/browse/power-supplies?page=2",
@@ -126,7 +109,6 @@ def main():
 
     # Case
     case_storage_dict = {}
-    # case_url_list = [case_url]
     case_url_list = [
         "https://pcparts.uk/browse/cases",
         "https://pcparts.uk/browse/cases?page=2",
@@ -268,8 +250,7 @@ def main():
     # Get the current directory of the script
     current_dir = os.path.dirname(os.path.realpath(__file__))
     # Construct the path to the Excel file relative to the project root
-    # excel_file = os.path.abspath(os.path.join(current_dir, '../../parts/components.xlsx'))
-    excel_file = os.path.abspath(os.path.join(current_dir, '../../parts/components_new.xlsx'))
+    excel_file = os.path.abspath(os.path.join(current_dir, '../../parts/components.xlsx'))
 
     write_excel_data(filepath=excel_file, dataframe=complete_df)
 

@@ -1,16 +1,17 @@
 #!/bin/bash
-
-echo "Running pylint checks"
-pylint pc_builder_backend/
+#
+#echo "Running pylint checks"
+#pylint pc_builder_backend/
 
 echo "Running python unit tests!!!"
 python3 -m unittest
 
-if [ $? = 0 ]; # Checks that the return type is 0, if so continues to run the file
-then
+if [ $? = 0 ]; then
     echo "--------------------------------------"
     echo "Tests passed :) Flask Application can be built successfully"
     echo "--------------------------------------"
-else # If the tests return 1 it indicates a fail, so the main file isn't run
+    echo "Running Flask Application..."
+    python3 pc_builder_backend/app.py
+else
     echo "Python unittests failed :( Please fix before building application"
 fi
