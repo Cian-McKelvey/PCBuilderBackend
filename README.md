@@ -21,9 +21,7 @@ It uses Flask for the backend, MongoDB for data storage, and Beautiful Soup for 
 
 ## Installation
 
-1. Clone the repository:
-   git clone https://github.com/yourusername/pc-build-generator.git
-   cd pc-build-generator
+1. Clone the repository and go to that directory
 
 2. Set up a virtual environment:
    python -m venv venv
