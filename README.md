@@ -34,15 +34,11 @@ It uses Flask for the backend, MongoDB for data storage, and Beautiful Soup for 
 
 ## API Reference
 
-Detailed API documentation can be found in the [API.md](API.md) file.
+Detailed API documentation can be found [HERE]() file.
 
 ## Contributing
 
 Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ## Frontend
 
